@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Leads</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
+h1{color:#89b4fa;margin-bottom:.5rem}
+p.sub{color:#6c7086;margin-bottom:1.5rem}
+.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
+.nav a:hover{background:#45475a}
+.filter-bar{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.filter-bar a{background:#313244;padding:.4rem .8rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
+.filter-bar a.active{background:#89b4fa;color:#1e1e2e;font-weight:700}
+.card{background:#313244;padding:1.2rem;border-radius:8px;margin-bottom:.8rem}
+.card .name{color:#cdd6f4;font-weight:700;font-size:1rem}
+.card .meta{color:#6c7086;font-size:.8rem;margin:.2rem 0}
+.card .desc{color:#a6adc8;font-size:.9rem;margin:.4rem 0;white-space:pre-wrap}
+.card .actions{display:flex;gap:.5rem;margin-top:.5rem;align-items:center}
+.status{display:inline-block;padding:.15rem .5rem;border-radius:4px;font-size:.75rem;font-weight:600}
+.status.new{background:#45475a;color:#a6adc8}
+.status.contacted{background:#2d3d4a;color:#89b4fa}
+.status.qualified{background:#2d4a2d;color:#a6e3a1}
+.status.lost{background:#4a2d2d;color:#f38ba8}
+.status.converted{background:#3d4a2d;color:#f9e2af}
+select{background:#45475a;border:1px solid #585b70;border-radius:4px;color:#cdd6f4;padding:.2rem}
+.btn-sm{background:#45475a;color:#cdd6f4;border:none;padding:.3rem .6rem;border-radius:4px;cursor:pointer;font-size:.8rem}
+form{display:inline}
+a{color:#89b4fa;text-decoration:none}
+.empty{color:#6c7086;text-align:center;padding:2rem}
+</style>
+</head>
+<body>
+<h1>Leads</h1>
+<p class="sub">Capture and manage potential customer inquiries</p>
+<div class="nav">
+<a href="/business">Dashboard</a><a href="/business/clients">Clients</a>
+<a href="/business/quotes">Quotes</a><a href="/business/invoices">Invoices</a>
+<a href="/business/hours">Hours</a><a href="/business/expenses">Expenses</a>
+<a href="/business/quotes/estimate">AI Estimate</a><a href="/business/rates">Rates</a><a href="/business/social">Social</a><a href="/business/leads">Leads</a>
+</div>
+<div class="filter-bar">
+<a href="/business/leads" class="{{'' if current_status else 'active'}}">All</a>
+<a href="/business/leads?status=new" class="{{'active' if current_status=='new' else ''}}">New</a>
+<a href="/business/leads?status=contacted" class="{{'active' if current_status=='contacted' else ''}}">Contacted</a>
+<a href="/business/leads?status=qualified" class="{{'active' if current_status=='qualified' else ''}}">Qualified</a>
+<a href="/business/leads?status=converted" class="{{'active' if current_status=='converted' else ''}}">Converted</a>
+<a href="/business/leads?status=lost" class="{{'active' if current_status=='lost' else ''}}">Lost</a>
+</div>
+{% for lead in leads %}
+<div class="card">
+<div class="name">{{lead.name}} <span class="status {{lead.status}}">{{lead.status}}</span></div>
+<div class="meta">
+{% if lead.phone %}{{lead.phone}}{% endif %}
+{% if lead.email %} &middot; {{lead.email}}{% endif %}
+{% if lead.source %} &middot; via {{lead.source}}{% endif %}
+{% if lead.created_at %} &middot; {{lead.created_at[:10]}}{% endif %}
+</div>
+{% if lead.description %}<div class="desc">{{lead.description}}</div>{% endif %}
+<div class="actions">
+<form method="POST" action="/business/leads/{{lead.id}}/status">
+<select name="status" onchange="this.form.submit()">
+<option value="new" {{'selected' if lead.status=='new'}}>New</option>
+<option value="contacted" {{'selected' if lead.status=='contacted'}}>Contacted</option>
+<option value="qualified" {{'selected' if lead.status=='qualified'}}>Qualified</option>
+<option value="converted" {{'selected' if lead.status=='converted'}}>Converted</option>
+<option value="lost" {{'selected' if lead.status=='lost'}}>Lost</option>
+</select>
+</form>
+<form method="POST" action="/business/leads/{{lead.id}}/delete" onsubmit="return confirm('Delete this lead?')">
+<button class="btn-sm" style="background:#4a2d2d;color:#f38ba8">Delete</button>
+</form>
+</div>
+</div>
+{% else %}
+<div class="empty">No leads yet. Share your <a href="/business/lead-capture" target="_blank">lead capture page</a> to start collecting inquiries.</div>
+{% endfor %}
+</body>
+</html>

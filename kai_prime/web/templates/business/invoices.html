@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Invoices</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
+h1{color:#89b4fa;margin-bottom:1.5rem}
+.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
+.btn{display:inline-block;background:#89b4fa;color:#1e1e2e;padding:.5rem 1rem;border-radius:6px;text-decoration:none;font-weight:700;margin-bottom:1rem}
+table{width:100%;border-collapse:collapse;background:#313244;border-radius:8px;overflow:hidden}
+th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid #45475a}
+th{background:#45475a;color:#89b4fa}
+tr:hover{background:#3a3b4e}
+a{color:#89b4fa;text-decoration:none}
+.paid{color:#a6e3a1;font-weight:700}.unpaid{color:#f38ba8;font-weight:700}
+form{display:inline}
+</style>
+</head>
+<body>
+<h1>Invoices</h1>
+<div class="nav">
+<a href="/business">Dashboard</a><a href="/business/clients">Clients</a>
+<a href="/business/quotes">Quotes</a><a href="/business/invoices">Invoices</a>
+<a href="/business/hours">Hours</a><a href="/business/expenses">Expenses</a>
+<a href="/business/quotes/estimate">AI Estimate</a><a href="/business/rates">Rates</a><a href="/business/social">Social</a><a href="/business/leads">Leads</a>
+</div>
+<a class="btn" href="/business/invoices/new">+ New Invoice</a>
+<table>
+<tr><th>#</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
+{% for inv in invoices %}
+<tr>
+<td><a href="/business/invoices/{{inv.id}}">{{inv.invoice_number or '#'~inv.id}}</a></td>
+<td>{{inv.client_name}}</td>
+<td>${{"%.2f"|format(inv.total)}}</td>
+<td class="{{'paid' if inv.paid else 'unpaid'}}">{{'Paid' if inv.paid else 'Unpaid'}}</td>
+<td>{{inv.date[:10]}}</td>
+<td>
+{% if not inv.paid %}<form method="POST" action="/business/invoices/{{inv.id}}/pay" style="display:inline"><button style="background:none;border:none;color:#a6e3a1;cursor:pointer">Mark Paid</button></form>{% endif %}
+<form method="POST" action="/business/invoices/{{inv.id}}/delete" style="display:inline" onsubmit="return confirm('Delete?')"><button style="background:none;border:none;color:#f38ba8;cursor:pointer">Delete</button></form>
+</td>
+</tr>
+{% else %}
+<tr><td colspan="6">No invoices yet</td></tr>
+{% endfor %}
+</table>
+</body>
+</html>

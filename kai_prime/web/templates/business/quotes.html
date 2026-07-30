@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Quotes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
+h1{color:#89b4fa;margin-bottom:1.5rem}
+.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
+.nav a:hover{background:#45475a}
+.btn{display:inline-block;background:#89b4fa;color:#1e1e2e;padding:.5rem 1rem;border-radius:6px;text-decoration:none;font-weight:700;margin-bottom:1rem}
+.btn.alt{background:#45475a;color:#cdd6f4;margin-left:.5rem}
+table{width:100%;border-collapse:collapse;background:#313244;border-radius:8px;overflow:hidden}
+th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid #45475a}
+th{background:#45475a;color:#89b4fa}
+tr:hover{background:#3a3b4e}
+a{color:#89b4fa;text-decoration:none}
+a:hover{text-decoration:underline}
+.tag{display:inline-block;padding:.15rem .5rem;border-radius:4px;font-size:.8rem}
+.tag.draft{background:#45475a;color:#a6adc8}
+.tag.sent{background:#f9e2af;color:#1e1e2e}
+.tag.approved{background:#a6e3a1;color:#1e1e2e}
+form{display:inline}
+</style>
+</head>
+<body>
+<h1>Quotes</h1>
+<div class="nav">
+<a href="/business">Dashboard</a><a href="/business/clients">Clients</a>
+<a href="/business/quotes">Quotes</a><a href="/business/invoices">Invoices</a>
+<a href="/business/hours">Hours</a><a href="/business/expenses">Expenses</a>
+<a href="/business/quotes/estimate">AI Estimate</a><a href="/business/rates">Rates</a><a href="/business/social">Social</a><a href="/business/leads">Leads</a>
+</div>
+<a class="btn" href="/business/quotes/new">+ New Quote</a>
+<a class="btn alt" href="/business/quotes/estimate">AI Estimate</a>
+<table>
+<tr><th>#</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
+{% for q in quotes %}
+<tr>
+<td><a href="/business/quotes/{{q.id}}">{{q.quote_number or '#'~q.id}}</a></td>
+<td>{{q.client_name}}</td>
+<td>${{"%.2f"|format(q.total)}}</td>
+<td><span class="tag {{q.status}}">{{q.status}}</span></td>
+<td>{{q.date[:10]}}</td>
+<td>
+<a href="/business/quotes/{{q.id}}">View</a>
+<form method="POST" action="/business/quotes/{{q.id}}/invoice" style="display:inline"><button style="background:none;border:none;color:#a6e3a1;cursor:pointer">Invoice</button></form>
+<form method="POST" action="/business/quotes/{{q.id}}/delete" style="display:inline" onsubmit="return confirm('Delete?')"><button style="background:none;border:none;color:#f38ba8;cursor:pointer">Delete</button></form>
+</td>
+</tr>
+{% else %}
+<tr><td colspan="6">No quotes yet</td></tr>
+{% endfor %}
+</table>
+</body>
+</html>

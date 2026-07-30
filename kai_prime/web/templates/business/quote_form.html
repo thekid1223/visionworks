@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>New Quote</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
+h1{color:#89b4fa;margin-bottom:.5rem}
+p.sub{color:#6c7086;margin-bottom:1.5rem}
+label{display:block;margin:1rem 0 .3rem;color:#a6adc8}
+input,select,textarea{padding:.5rem;background:#313244;border:1px solid #45475a;border-radius:6px;color:#cdd6f4;font-size:.9rem}
+input:focus,select:focus{border-color:#89b4fa;outline:none}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{padding:.4rem;text-align:left;border-bottom:1px solid #45475a;vertical-align:middle}
+th{background:#45475a;color:#89b4fa;font-size:.8rem;white-space:nowrap}
+.btn{background:#89b4fa;color:#1e1e2e;border:none;padding:.6rem 1.5rem;border-radius:6px;font-weight:700;cursor:pointer;margin-top:1rem;font-size:1rem}
+.btn:hover{background:#74c7ec}
+.btn-sm{background:#45475a;color:#cdd6f4;border:none;padding:.3rem .5rem;border-radius:4px;cursor:pointer;font-size:.8rem}
+.btn-sm.green{background:#2d4a2d;color:#a6e3a1}
+a{color:#89b4fa}
+.nav{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
+.nav a:hover{background:#45475a;text-decoration:none}
+.toolbar{display:flex;gap:.5rem;align-items:center;margin:.5rem 0;flex-wrap:wrap}
+.cat-select{width:100px;font-size:.8rem}
+.unit-select{width:75px;font-size:.8rem}
+.qty-input{width:70px;font-size:.8rem}
+.rate-input{width:80px;font-size:.8rem}
+.desc-input{min-width:160px;font-size:.8rem}
+.line-total{font-weight:700;min-width:70px;font-size:.85rem}
+/* Quick-add dropdown */
+.qad{position:relative;display:inline-block}
+.qad-menu{display:none;position:absolute;top:100%;left:0;background:#45475a;border:1px solid #585b70;border-radius:6px;max-height:300px;overflow-y:auto;width:400px;z-index:100}
+.qad-menu.show{display:block}
+.qad-item{padding:.4rem .6rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid #585b70}
+.qad-item:hover{background:#585b70}
+.qad-item .cat{color:#89b4fa;font-size:.7rem}
+.qad-item .rate{color:#f9e2af;float:right}
+</style>
+</head>
+<body>
+<h1>New Quote</h1>
+<p class="sub">Add line items manually or use <strong>Quick Add</strong> to pick from local rates</p>
+<div class="nav">
+<a href="/business">Dashboard</a><a href="/business/clients">Clients</a>
+<a href="/business/quotes">Quotes</a><a href="/business/invoices">Invoices</a>
+<a href="/business/hours">Hours</a><a href="/business/expenses">Expenses</a>
+<a href="/business/quotes/estimate">AI Estimate</a><a href="/business/rates">Rates</a><a href="/business/social">Social</a><a href="/business/leads">Leads</a>
+</div>
+<form method="POST">
+<label>Client</label>
+<select name="client_id" required style="max-width:400px">
+{% for c in clients %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}
+</select>
+<label>Tax Rate (%)</label><input name="tax_rate" type="number" step="0.01" value="0" style="max-width:80px">
+<label>Line Items — <span style="color:#a6adc8;font-weight:400">click Quick Add to pull from local rates, or fill in manually</span></label>
+<div class="toolbar">
+<div class="qad">
+<button type="button" class="btn-sm green" onclick="toggleQuickAdd()">+ Quick Add from Rates</button>
+<div class="qad-menu" id="qadMenu">
+{% for r in rates %}
+<div class="qad-item" onclick="addRateItem('{{r.item_name|e}}', {{r.rate}}, '{{r.unit|e}}', '{{r.category|e}}')">
+<span class="cat">{{r.category}}</span> {{r.item_name}} <span class="rate">${{"%.2f"|format(r.rate)}}/{{r.unit}}</span>
+</div>
+{% endfor %}
+</div>
+</div>
+<button type="button" class="btn-sm" onclick="addBlankLine()">+ Add Blank Line</button>
+</div>
+<table id="items">
+<tr>
+<th style="width:30px">#</th>
+<th>Description</th>
+<th style="width:90px">Type</th>
+<th style="width:60px">Qty</th>
+<th style="width:55px">Unit</th>
+<th style="width:70px">Rate</th>
+<th style="width:70px">Total</th>
+<th style="width:30px"></th>
+</tr>
+<tr class="line">
+<td class="line-num">1</td>
+<td><input class="desc-input" name="desc[]" placeholder="Description of work"></td>
+<td>
+<select class="cat-select" name="type[]">
+<option value="Labor">Labor</option>
+<option value="Material">Material</option>
+<option value="Subcontractor">Sub</option>
+<option value="Equipment">Equipment</option>
+<option value="Permit">Permit</option>
+<option value="Transportation">Transport</option>
+</select>
+</td>
+<td><input class="qty-input" name="qty[]" type="number" step="0.01" value="1"></td>
+<td>
+<select class="unit-select" name="unit[]">
+<option value="hour">hour</option>
+<option value="sq ft">sq ft</option>
+<option value="linear ft">lin ft</option>
+<option value="each">each</option>
+<option value="load">load</option>
+<option value="day">day</option>
+<option value="sq yd">sq yd</option>
+<option value="mile">mile</option>
+<option value="lump">lump</option>
+</select>
+</td>
+<td><input class="rate-input" name="rate[]" type="number" step="0.01" placeholder="0.00"></td>
+<td class="line-total">$0.00</td>
+<td><button type="button" class="btn-sm" onclick="this.closest('tr').remove();renumber()">X</button></td>
+</tr>
+</table>
+<label>Notes</label><textarea name="notes" rows="2" style="width:100%;max-width:500px"></textarea>
+<button class="btn">Create Quote</button>
+<a href="/business/quotes" style="margin-left:1rem">Cancel</a>
+</form>
+
+<script>
+var rateData = [
+{% for r in rates %}
+{name: {{r.item_name|tojson}}, rate: {{r.rate}}, unit: {{r.unit|tojson}}, cat: {{r.category|tojson}}},
+{% endfor %}
+];
+
+function toggleQuickAdd(){
+var m=document.getElementById('qadMenu');m.classList.toggle('show')
+}
+document.addEventListener('click',function(e){var m=document.getElementById('qadMenu');if(!e.target.closest('.qad')){m.classList.remove('show')}})
+
+function addRateItem(desc,rate,unit,cat){
+addLine(desc,rate,unit,cat)
+}
+
+function addBlankLine(){
+addLine('',0,'hour','Labor')
+}
+
+function addLine(desc='',rate=0,unit='hour',cat='Labor'){
+var t=document.getElementById('items');
+var proto=t.rows[1];
+var r=proto.cloneNode(true);
+r.querySelector('.desc-input').value=desc;
+r.querySelector('.rate-input').value=rate||'';
+r.querySelector('.qty-input').value=1;
+r.querySelector('.unit-select').value=unit;
+var sel=r.querySelector('.cat-select');
+for(var i=0;i<sel.options.length;i++){if(sel.options[i].value==cat){sel.selectedIndex=i;break}}
+r.querySelector('.line-total').textContent='$0.00';
+t.appendChild(r);
+renumber();
+updateLineTotal(r)
+}
+
+function renumber(){
+var rows=document.getElementById('items').querySelectorAll('.line');
+rows.forEach(function(r,i){r.querySelector('.line-num').textContent=i+1})
+}
+
+document.getElementById('items').addEventListener('input',function(e){
+var row=e.target.closest('.line');
+if(!row)return;
+updateLineTotal(row)
+});
+
+function updateLineTotal(row){
+var qty=parseFloat(row.querySelector('.qty-input').value)||0;
+var rate=parseFloat(row.querySelector('.rate-input').value)||0;
+row.querySelector('.line-total').textContent='$'+(qty*rate).toFixed(2)
+}
+</script>
+</body>
+</html>

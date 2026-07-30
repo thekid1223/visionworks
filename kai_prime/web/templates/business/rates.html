@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Local Rates</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
+h1{color:#89b4fa;margin-bottom:.5rem}
+p.sub{color:#6c7086;margin-bottom:1.5rem}
+.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
+.nav a:hover{background:#45475a}
+.grid{display:grid;grid-template-columns:1fr 2fr;gap:1.5rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:#313244;padding:1.5rem;border-radius:8px}
+.card h2{color:#89b4fa;font-size:1rem;margin-bottom:1rem}
+label{display:block;margin:.6rem 0 .2rem;color:#a6adc8;font-size:.9rem}
+input,select{width:100%;padding:.5rem;background:#45475a;border:1px solid #585b70;border-radius:4px;color:#cdd6f4}
+.btn{background:#89b4fa;color:#1e1e2e;border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;cursor:pointer;margin-top:.6rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{padding:.5rem;text-align:left;border-bottom:1px solid #45475a}
+th{color:#89b4fa}
+tr:hover{background:#3a3b4e}
+.cat-group{color:#89b4fa;font-weight:700;padding-top:.5rem}
+form{display:inline}
+a{color:#89b4fa;text-decoration:none}
+a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<h1>Local Rates</h1>
+<p class="sub">Standard rates used by Kai for AI quote estimation — edit freely</p>
+<div class="nav">
+<a href="/business">Dashboard</a><a href="/business/clients">Clients</a>
+<a href="/business/quotes">Quotes</a><a href="/business/invoices">Invoices</a>
+<a href="/business/hours">Hours</a><a href="/business/expenses">Expenses</a>
+<a href="/business/quotes/estimate">AI Estimate</a><a href="/business/rates">Rates</a>
+</div>
+<div class="grid">
+<div class="card">
+<h2>Add Rate</h2>
+<form method="POST">
+<label>Category</label>
+<input name="category" list="cat-list" placeholder="e.g. Framing">
+<datalist id="cat-list">{% for c in categories %}<option value="{{c}}">{% endfor %}</datalist>
+<label>Item Name</label>
+<input name="item_name" placeholder="e.g. Wall Framing Labor">
+<label>Unit</label>
+<select name="unit"><option value="hour">hour</option><option value="sq ft">sq ft</option><option value="linear ft">linear ft</option><option value="each">each</option><option value="load">load</option><option value="mile">mile</option><option value="day">day</option></select>
+<label>Rate ($)</label>
+<input name="rate" type="number" step="0.01" placeholder="0.00">
+<label>Description</label>
+<input name="description" placeholder="Optional notes">
+<button class="btn">Add Rate</button>
+</form>
+</div>
+<div class="card">
+<h2>All Rates ({{rates|length}})</h2>
+<table>
+<tr><th>Category</th><th>Item</th><th>Rate</th><th>Unit</th><th></th></tr>
+{% set last_cat = namespace(v='') %}
+{% for r in rates %}
+{% if r.category != last_cat.v %}
+<tr><td colspan="5" class="cat-group">{{r.category}}</td></tr>
+{% set last_cat.v = r.category %}
+{% endif %}
+<tr>
+<td style="color:#6c7086">{{r.category}}</td>
+<td>{{r.item_name}}</td>
+<td>${{"%.2f"|format(r.rate)}}</td>
+<td>{{r.unit}}</td>
+<td>
+<form method="POST" action="/business/rates/{{r.id}}/delete" onsubmit="return confirm('Delete?')">
+<button style="background:none;border:none;color:#f38ba8;cursor:pointer;font-size:.8rem">X</button>
+</form>
+</td>
+</tr>
+{% else %}
+<tr><td colspan="5">No rates yet. Add some above.</td></tr>
+{% endfor %}
+</table>
+</div>
+</div>
+</body>
+</html>

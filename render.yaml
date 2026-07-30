@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: kai-prime
+    runtime: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: waitress-serve --port $PORT kai_prime.web.server:create_app
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false

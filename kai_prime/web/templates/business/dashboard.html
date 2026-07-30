@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Vision Works — Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
+h1{color:#89b4fa;margin-bottom:1.5rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.card{background:#313244;padding:1.5rem;border-radius:8px}
+.card h3{color:#89b4fa;font-size:.9rem;margin-bottom:.5rem}
+.card .val{font-size:2rem;font-weight:700}
+.val.green{color:#a6e3a1}.val.red{color:#f38ba8}.val.blue{color:#89b4fa}.val.yellow{color:#f9e2af}.val.purple{color:#cba6f7}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+@media(max-width:800px){.row{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;background:#313244;border-radius:8px;overflow:hidden}
+th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid #45475a}
+th{background:#45475a;color:#89b4fa}
+tr:hover{background:#3a3b4e}
+a{color:#89b4fa;text-decoration:none}
+a:hover{text-decoration:underline}
+.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;font-size:.85rem}
+.nav a:hover{background:#45475a;text-decoration:none}
+.cat-bar{display:flex;align-items:center;margin:.3rem 0;gap:.5rem}
+.cat-bar .fill{height:20px;background:#89b4fa;border-radius:4px;min-width:4px;transition:width .3s}
+.cat-bar .label{min-width:130px;font-size:.85rem}.cat-bar .amt{min-width:70px;text-align:right;font-weight:700;font-size:.85rem}
+</style>
+</head>
+<body>
+<h1>Vision Works General Contracting</h1>
+<div class="nav">
+<a href="/business">Dashboard</a>
+<a href="/business/clients">Clients</a>
+<a href="/business/quotes">Quotes</a>
+<a href="/business/invoices">Invoices</a>
+<a href="/business/hours">Hours</a>
+<a href="/business/expenses">Expenses</a>
+<a href="/business/quotes/estimate">AI Estimate</a>
+<a href="/business/rates">Rates</a><a href="/business/social">Social</a><a href="/business/leads">Leads</a>
+</div>
+<div class="cards">
+<div class="card"><h3>Outstanding</h3><div class="val red">${{ "%.2f"|format(data.outstanding) }}</div></div>
+<div class="card"><h3>Paid (30d)</h3><div class="val green">${{ "%.2f"|format(data.paid_30d) }}</div></div>
+<div class="card"><h3>Expenses (30d)</h3><div class="val yellow">${{ "%.2f"|format(data.expenses_30d) }}</div></div>
+<div class="card"><h3>Net (30d)</h3><div class="val blue">${{ "%.2f"|format(data.net_30d) }}</div></div>
+<div class="card"><h3>Hours (30d)</h3><div class="val purple">{{ "%.1f"|format(data.hours_30d) }}</div></div>
+<div class="card"><h3>Active Jobs</h3><div class="val blue">{{ data.active_jobs }}</div></div>
+<div class="card"><h3>Clients</h3><div class="val green">{{ data.total_clients }}</div></div>
+</div>
+<div class="row">
+<div class="card">
+<h2 style="color:#89b4fa;font-size:1rem;margin-bottom:1rem">Expense Categories (30d)</h2>
+{% set max_expense = data.expense_categories[0].total if data.expense_categories else 1 %}
+{% for c in data.expense_categories %}
+<div class="cat-bar">
+<span class="label">{{c.category}}</span>
+<div class="fill" style="width:{{ (c.total / max_expense * 100)|round }}%"></div>
+<span class="amt">${{ "%.0f"|format(c.total) }}</span>
+</div>
+{% else %}
+<p style="color:#6c7086">No expenses this period</p>
+{% endfor %}
+</div>
+<div class="card">
+<h2 style="color:#89b4fa;font-size:1rem;margin-bottom:1rem">Recent Quotes</h2>
+<table>
+<tr><th>#</th><th>Client</th><th>Total</th><th>Status</th></tr>
+{% for q in data.recent_quotes %}
+<tr>
+<td><a href="/business/quotes/{{q.id}}">{{q.quote_number or '#'~q.id}}</a></td>
+<td>{{q.client_name}}</td>
+<td>${{ "%.2f"|format(q.total) }}</td>
+<td>{{q.status}}</td>
+</tr>
+{% else %}
+<tr><td colspan="4">No quotes yet</td></tr>
+{% endfor %}
+</table>
+</div>
+</div>
+<h2 style="margin-bottom:1rem;color:#89b4fa;font-size:1.1rem">Recent Invoices</h2>
+<table>
+<tr><th>Invoice</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th></tr>
+{% for inv in data.recent_invoices %}
+<tr>
+<td><a href="/business/invoices/{{inv.id}}">{{inv.invoice_number or '#'~inv.id}}</a></td>
+<td>{{inv.client_name}}</td>
+<td>${{ "%.2f"|format(inv.total) }}</td>
+<td>{{'Paid' if inv.paid else 'Unpaid'}}</td>
+<td>{{inv.date[:10]}}</td>
+</tr>
+{% else %}
+<tr><td colspan="5">No invoices yet</td></tr>
+{% endfor %}
+</table>
+</body>
+</html>

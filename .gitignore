@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+kai_prime_data/
+kai_config.json
+kai_bridge.json
+kai_incidents.json
+data/
+game_files/
+download_*.py
+download_*.txt
+server_out*.txt
+server_stderr.txt
+server_stdout*.txt
+start_server.bat
+launch_*.bat
+lobby_*.png

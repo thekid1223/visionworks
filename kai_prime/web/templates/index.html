@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>KAI PRIME</title>
+<link rel="stylesheet" href="/static/css/kai.css?v=2.1">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="kai-shell">
+  <nav class="kai-nav">
+    <div class="kai-logo">
+      <span class="logo-text">KAI</span>
+      <span class="logo-prime">PRIME</span>
+    </div>
+    <div class="nav-items">
+      <button class="nav-btn active" data-tab="chat" title="Chat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Chat</span>
+      </button>
+      <button class="nav-btn" data-tab="desktop" title="Desktop">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span>Desktop</span>
+      </button>
+      <button class="nav-btn" data-tab="network" title="Network">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span>Network</span>
+      </button>
+      <button class="nav-btn" data-tab="tools" title="Tools">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <span>Tools</span>
+      </button>
+      <button class="nav-btn" data-tab="security" title="Security">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Security</span>
+      </button>
+      <button class="nav-btn" data-tab="dashboard" title="Dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-btn" data-tab="chess" title="Chess">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <span>Chess</span>
+      </button>
+      <button class="nav-btn" data-tab="life" title="Life">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <span>Life</span>
+      </button>
+      <button class="nav-btn" data-tab="settings" title="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </div>
+    <div class="nav-status">
+      <div class="status-indicator" id="statusDot"></div>
+      <span class="status-text" id="statusText">ONLINE</span>
+    </div>
+  </nav>
+
+  <main class="kai-main">
+    <section class="tab-content active" id="tab-chat">
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+          <div class="system-msg">Kai Prime initialized. Ready.</div>
+        </div>
+        <div class="chat-input-area">
+          <textarea id="chatInput" placeholder="Talk to Kai..." rows="1"></textarea>
+          <button id="chatSend" class="send-btn" title="Send">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+          <button id="chatVoice" class="voice-btn" title="Toggle TTS">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-desktop">
+      <div class="desktop-panel">
+        <div class="panel-header">
+          <h3>Desktop Activity</h3>
+          <div class="desktop-actions">
+            <button class="action-btn" id="screenshotBtn">Screenshot</button>
+            <button class="action-btn" id="activeWindowBtn">Active Window</button>
+            <button class="action-btn" id="processesBtn">Processes</button>
+          </div>
+        </div>
+        <div class="desktop-screenshot" id="screenshotArea">
+          <div class="placeholder-text">Click Screenshot to capture the screen</div>
+        </div>
+        <div class="desktop-log">
+          <div class="panel-sub-title">Kai's Activity Log</div>
+          <div class="activity-log" id="activityLog">
+            <div class="activity-item system">System ready. Kai will log autonomous actions here.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-network">
+      <div class="network-panel">
+        <div class="panel-header">
+          <h3>Network Intelligence</h3>
+          <div class="net-actions">
+            <button class="action-btn" id="netScanBtn">Scan</button>
+            <button class="action-btn" id="netFingerprintBtn">Fingerprint All</button>
+            <button class="action-btn" id="netGatewayBtn">Gateway Scan</button>
+          </div>
+        </div>
+        <div class="net-status" id="netStatus">Ready to scan</div>
+        <div class="device-list" id="deviceList"></div>
+        <div class="net-console" id="netConsole">
+          <div class="panel-sub-title">Scan Output</div>
+          <div class="console-output" id="netOutput">Waiting for scan...</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-tools">
+      <div class="tools-panel">
+        <div class="panel-header"><h3>Tool Execution</h3></div>
+        <div class="tool-grid" id="toolGrid"></div>
+        <div class="tool-output" id="toolOutput">
+          <div class="placeholder-text">Select a tool to execute</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-security">
+      <div class="security-panel">
+        <div class="panel-header">
+          <h3>Security Center</h3>
+          <button class="action-btn" id="secScanBtn">Scan Code</button>
+        </div>
+        <div class="sec-grid">
+          <div class="sec-card" id="scanCard">
+            <div class="sec-card-title">Security Scan Results</div>
+            <div class="sec-scan-input">
+              <input type="text" id="scanPath" class="ctrl-input wide" placeholder="File or directory to scan...">
+              <button class="action-btn small" id="scanRunBtn">Scan</button>
+            </div>
+            <div class="sec-scan-results" id="scanResults">
+              <div class="placeholder-text">Enter a path and click Scan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-dashboard">
+      <div class="dashboard-panel">
+        <div class="panel-header">
+          <h3>Kai Dashboard</h3>
+          <button class="action-btn" id="dashRefreshBtn">Refresh</button>
+        </div>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <div class="dash-card-title">Emotion</div>
+            <div class="dash-stat" id="dashEmotion">-</div>
+            <div class="dash-sub" id="dashMoodHistory">-</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">Memory</div>
+            <div class="dash-stat" id="dashMemoryTurns">0</div>
+            <div class="dash-sub" id="dashSemantic">0 facts</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">Knowledge</div>
+            <div class="dash-stat" id="dashKnowledge">0</div>
+            <div class="dash-sub" id="dashFts">0 entries</div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">System</div>
+            <div class="dash-stat" id="dashTools">0</div>
+            <div class="dash-sub" id="dashProviders">-</div>
+          </div>
+          <div class="dash-card wide">
+            <div class="dash-card-title">Quick Actions</div>
+            <div class="dash-actions">
+              <button class="action-btn" id="dashMemoryBtn">View Memory</button>
+              <button class="action-btn" id="dashHealthBtn">System Health</button>
+              <button class="action-btn" id="dashStateBtn">Full State Dump</button>
+              <button class="action-btn" id="dashWatcherBtn">Watcher Events</button>
+            </div>
+          </div>
+          <div class="dash-card wide">
+            <div class="dash-card-title">Tools Registered</div>
+            <div class="dash-tools" id="dashToolsList"></div>
+          </div>
+          <div class="dash-card wide">
+            <div class="dash-card-title" id="dashActionResultTitle">Action Result</div>
+            <div class="dash-result" id="dashActionResult">
+              <div class="placeholder-text">Click a Quick Action button</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-chess">
+      <div class="chess-panel">
+        <div class="panel-header">
+          <h3>Chess Watcher</h3>
+          <div class="chess-status" id="chessStatus">STOPPED</div>
+        </div>
+        <div class="chess-controls">
+          <button class="btn btn-primary" onclick="chessWatch('start')" id="chessStartBtn">Start Watching</button>
+          <button class="btn btn-danger" onclick="chessWatch('stop')" id="chessStopBtn" disabled>Stop Watching</button>
+        </div>
+        <div class="chess-info">
+          <div class="info-row"><span>Status:</span><span id="chessWatchStatus">Not watching</span></div>
+          <div class="info-row"><span>Moves seen:</span><span id="chessMoveCount">0</span></div>
+          <div class="info-row"><span>Last advice:</span><span id="chessLastAdvice">none</span></div>
+        </div>
+        <div class="chess-log" id="chessLog">
+          <div class="log-entry">Open chess.com in Firefox, then click "Start Watching"</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-life">
+      <div class="life-panel">
+        <div class="panel-header">
+          <h3>Life Management</h3>
+        </div>
+        <div class="life-grid">
+          <div class="life-card">
+            <div class="life-card-title">Reminders</div>
+            <div class="life-items" id="remindersList">
+              <div class="placeholder-text">Loading...</div>
+            </div>
+            <div class="life-add-row">
+              <input type="text" id="reminderInput" class="ctrl-input wide" placeholder="Reminder text...">
+              <input type="text" id="reminderTime" class="ctrl-input" placeholder="in 30 minutes">
+              <button class="action-btn small" id="addReminderBtn">Add</button>
+            </div>
+          </div>
+          <div class="life-card">
+            <div class="life-card-title">Tasks</div>
+            <div class="life-items" id="tasksList">
+              <div class="placeholder-text">Loading...</div>
+            </div>
+            <div class="life-add-row">
+              <input type="text" id="taskInput" class="ctrl-input wide" placeholder="Task title...">
+              <select id="taskPriority" class="ctrl-input">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+              <button class="action-btn small" id="addTaskBtn">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-content" id="tab-settings">
+      <div class="settings-panel">
+        <div class="panel-header"><h3>Settings</h3></div>
+        <div class="setting-group">
+          <label>Supervisor</label>
+          <button class="toggle-btn" id="supervisorToggle">ACTIVE</button>
+        </div>
+        <div class="setting-group">
+          <label>Voice</label>
+          <button class="toggle-btn" id="voiceToggle">ON</button>
+        </div>
+        <div class="setting-group">
+          <label>LLM Providers</label>
+          <div class="provider-list" id="providerList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/static/js/kai.js?v=2.1"></script>
+</body>
+</html>
