@@ -1,64 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Invoice {{inv.invoice_number}}</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem;max-width:800px;margin:auto}
-h1{color:#89b4fa;margin-bottom:.5rem}
-.meta{color:#a6adc8;margin-bottom:2rem;font-size:.9rem}
-.paid-badge{display:inline-block;background:#a6e3a1;color:#1e1e2e;padding:.2rem .6rem;border-radius:4px;font-weight:700;font-size:.8rem}
-.unpaid-badge{display:inline-block;background:#f38ba8;color:#1e1e2e;padding:.2rem .6rem;border-radius:4px;font-weight:700;font-size:.8rem}
-table{width:100%;border-collapse:collapse;margin:1rem 0;background:#313244;border-radius:8px;overflow:hidden}
-th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid #45475a}
-th{background:#45475a;color:#89b4fa;font-size:.8rem}
-.total-row td{border-top:2px solid #89b4fa;font-weight:700;font-size:1.1rem}
-.sub-row td{color:#a6adc8;font-size:.9rem}
-.tax-row td{color:#f9e2af;font-size:.9rem}
-.type-tag{display:inline-block;padding:.1rem .4rem;border-radius:3px;font-size:.7rem;font-weight:600}
-.type-tag.Labor{background:#2d4a2d;color:#a6e3a1}
-.type-tag.Material{background:#4a3d2d;color:#f9e2af}
-.type-tag.Subcontractor{background:#2d3d4a;color:#89b4fa}
-.type-tag.Equipment{background:#3d2d4a;color:#cba6f7}
-.type-tag.Permit{background:#4a2d2d;color:#f38ba8}
-.type-tag.Transportation{background:#2d4a4a;color:#94e2d5}
-.notes{background:#313244;padding:1rem;border-radius:8px;margin:1rem 0;white-space:pre-wrap}
-.btn{display:inline-block;background:#89b4fa;color:#1e1e2e;padding:.5rem 1rem;border-radius:6px;text-decoration:none;font-weight:700;margin-right:.5rem;border:none;cursor:pointer}
-.btn.green{background:#a6e3a1;color:#1e1e2e}
-@media print{body{color:#000;background:#fff}h1{color:#000}.meta{color:#555}table{background:#fff}th{background:#eee;color:#000}td{border-color:#ccc}.notes{background:#f5f5f5}.btn{display:none}}
-</style>
-</head>
-<body>
-<h1>{{inv.invoice_number or 'Invoice #'~inv.id}}</h1>
-<div class="meta">
+{% extends "business/base.html" %}
+{% block title %}Invoice {{inv.invoice_number}} — Vision Works{% endblock %}
+{% block content %}
+<div class="page-header"><h2>{{inv.invoice_number or 'Invoice #'~inv.id}} <small><span class="badge {{'green' if inv.paid else 'red'}}">{{'Paid' if inv.paid else 'Unpaid'}}</span></small></h2></div>
+<div style="color:var(--text-muted);margin-bottom:1.5rem;font-size:.9rem">
 <strong>Client:</strong> {{inv.client_name}}<br>
 <strong>Date:</strong> {{inv.date[:10]}}<br>
-<strong>Status:</strong> <span class="{{'paid-badge' if inv.paid else 'unpaid-badge'}}">{{'Paid' if inv.paid else 'Unpaid'}}</span>
-{% if inv.payment_date %}<br><strong>Paid on:</strong> {{inv.payment_date[:10]}}{% endif %}
-{% if inv.payment_method %}<br><strong>Method:</strong> {{inv.payment_method}}{% endif %}
+{% if inv.payment_date %}<strong>Paid on:</strong> {{inv.payment_date[:10]}}<br>{% endif %}
+{% if inv.payment_method %}<strong>Method:</strong> {{inv.payment_method}}{% endif %}
 </div>
+<div class="table-wrap">
 <table>
 <tr><th>#</th><th>Description</th><th>Type</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Total</th></tr>
 {% for item in inv.items %}
 <tr>
 <td>{{loop.index}}</td>
 <td>{{item.desc}}</td>
-<td>{% if item.type %}<span class="type-tag {{item.type}}">{{item.type}}</span>{% endif %}</td>
+<td>{% if item.type %}<span class="type-tag type-{{item.type}}">{{item.type}}</span>{% endif %}</td>
 <td>{{item.qty}}</td>
 <td>{{item.unit or ''}}</td>
 <td>${{"%.2f"|format(item.rate)}}</td>
 <td>${{"%.2f"|format(item.total)}}</td>
 </tr>
 {% endfor %}
-<tr class="sub-row"><td colspan="6">Subtotal</td><td>${{"%.2f"|format(inv.subtotal)}}</td></tr>
+<tr style="color:var(--text-muted);font-size:.9rem"><td colspan="6">Subtotal</td><td>${{"%.2f"|format(inv.subtotal)}}</td></tr>
 {% if inv.tax_rate > 0 %}
-<tr class="tax-row"><td colspan="6">Tax ({{inv.tax_rate}}%)</td><td>${{"%.2f"|format(inv.tax_amount)}}</td></tr>
+<tr style="color:var(--accent);font-size:.9rem"><td colspan="6">Tax ({{inv.tax_rate}}%)</td><td>${{"%.2f"|format(inv.tax_amount)}}</td></tr>
 {% endif %}
-<tr class="total-row"><td colspan="6">Total</td><td>${{"%.2f"|format(inv.total)}}</td></tr>
+<tr style="border-top:2px solid var(--accent);font-weight:700;font-size:1.05rem"><td colspan="6">Total</td><td>${{"%.2f"|format(inv.total)}}</td></tr>
 </table>
-{% if inv.notes %}<div class="notes">{{inv.notes}}</div>{% endif %}
-<button class="btn" onclick="window.print()">Print / PDF</button>
-{% if not inv.paid %}<form method="POST" action="/business/invoices/{{inv.id}}/pay" style="display:inline"><button class="btn green">Mark Paid</button></form>{% endif %}
-<a class="btn" href="/business/invoices">Back</a>
-</body>
-</html>
+</div>
+{% if inv.notes %}<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;white-space:pre-wrap">{{inv.notes}}</div>{% endif %}
+<div class="btn-group">
+<button class="btn btn-primary" onclick="window.print()">Print / PDF</button>
+{% if not inv.paid %}<form method="POST" action="/business/invoices/{{inv.id}}/pay" style="display:inline"><button class="btn btn-primary" style="background:linear-gradient(135deg,var(--success),#1a7f30)">Mark Paid</button></form>{% endif %}
+<a class="btn btn-secondary" href="/business/invoices">Back</a>
+</div>
+{% endblock %}

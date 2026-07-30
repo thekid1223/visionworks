@@ -1,66 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Employee Hours</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
-h1{color:#89b4fa;margin-bottom:1.5rem}
-.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
-.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
-.nav a:hover{background:#45475a}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
-.card{background:#313244;padding:1.5rem;border-radius:8px}
-.card h2{color:#89b4fa;font-size:1rem;margin-bottom:1rem}
-label{display:block;margin:.6rem 0 .2rem;color:#a6adc8;font-size:.9rem}
-input,select{width:100%;padding:.5rem;background:#45475a;border:1px solid #585b70;border-radius:4px;color:#cdd6f4}
-.btn{background:#89b4fa;color:#1e1e2e;border:none;padding:.5rem 1rem;border-radius:6px;font-weight:700;cursor:pointer;margin-top:.6rem}
-table{width:100%;border-collapse:collapse;font-size:.9rem}
-th,td{padding:.5rem;text-align:left;border-bottom:1px solid #45475a}
-th{color:#89b4fa}
-.summary-item{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #45475a}
-.summary-item .name{color:#cdd6f4}.summary-item .total{color:#a6e3a1;font-weight:700}
-.pay{color:#f9e2af;font-weight:700}
-</style>
-</head>
-<body>
-<h1>Employee Hours & Pay</h1>
-<div class="nav">
-<a href="/business">Dashboard</a><a href="/business/clients">Clients</a>
-<a href="/business/quotes">Quotes</a><a href="/business/invoices">Invoices</a>
-<a href="/business/hours">Hours</a><a href="/business/expenses">Expenses</a>
-<a href="/business/quotes/estimate">AI Estimate</a><a href="/business/rates">Rates</a><a href="/business/social">Social</a><a href="/business/leads">Leads</a>
-</div>
-<div class="grid">
+{% extends "business/base.html" %}
+{% block title %}Employee Hours — Vision Works{% endblock %}
+{% block content %}
+<div class="page-header"><h2>Employee Hours & Pay</h2></div>
+<div class="metric-row">
 <div class="card">
-<h2>Log Hours</h2>
+<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Log Hours</h3>
 <form method="POST">
-<label>Employee Name</label><input name="employee" required>
-<label>Date</label><input name="date" type="date">
-<label>Hours</label><input name="hours" type="number" step="0.25" required>
-<label>Hourly Rate ($)</label><input name="rate" type="number" step="0.01" value="0" placeholder="0.00">
-<label>Description</label><input name="description">
-<button class="btn">Log Hours</button>
+<div class="form-group"><label>Employee Name</label><input name="employee" required></div>
+<div class="form-row">
+<div class="form-group"><label>Date</label><input name="date" type="date"></div>
+<div class="form-group"><label>Hours</label><input name="hours" type="number" step="0.25" required></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>Hourly Rate ($)</label><input name="rate" type="number" step="0.01" placeholder="0.00"></div>
+<div class="form-group"><label>Description</label><input name="description"></div>
+</div>
+<button class="btn btn-primary">Log Hours</button>
 </form>
 </div>
 <div class="card">
-<h2>Summary (30d)</h2>
+<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Summary (30d)</h3>
 {% for s in summary %}
-<div class="summary-item">
-<span class="name">{{s.employee}}</span>
-<span class="total">{{s.total_hours}}h @ ${{"%.0f"|format(s.avg_rate or 0)}}/hr</span>
+<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
+<span>{{s.employee}}</span>
+<span style="color:var(--text-muted)">{{s.total_hours}}h @ ${{"%.0f"|format(s.avg_rate or 0)}}/hr</span>
 </div>
-<div class="summary-item" style="border:none;padding-top:0">
+<div style="display:flex;justify-content:space-between;padding:0 0 .5rem;color:var(--success);font-weight:700">
 <span></span>
-<span class="pay">${{"%.2f"|format(s.total_pay or 0)}} total</span>
+<span>${{"%.2f"|format(s.total_pay or 0)}} total</span>
 </div>
 {% else %}
-<p style="color:#6c7086">No hours logged yet</p>
+<p style="color:var(--text-dim)">No hours logged yet</p>
 {% endfor %}
 </div>
-<div class="card" style="grid-column:1/-1">
-<h2>Recent (30d)</h2>
+</div>
+<div class="table-wrap">
 <table>
 <tr><th>Employee</th><th>Date</th><th>Hours</th><th>Rate</th><th>Pay</th><th>Description</th></tr>
 {% for h in hours %}
@@ -69,7 +43,7 @@ th{color:#89b4fa}
 <td>{{h.date}}</td>
 <td>{{h.hours}}</td>
 <td>${{"%.2f"|format(h.rate or 0)}}</td>
-<td class="pay">${{"%.2f"|format(h.pay)}}</td>
+<td style="color:var(--accent);font-weight:700">${{"%.2f"|format(h.pay)}}</td>
 <td>{{h.description or ''}}</td>
 </tr>
 {% else %}
@@ -77,6 +51,4 @@ th{color:#89b4fa}
 {% endfor %}
 </table>
 </div>
-</div>
-</body>
-</html>
+{% endblock %}

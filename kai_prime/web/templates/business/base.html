@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{% block title %}Vision Works{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/business.css">
+{% block head_extra %}{% endblock %}
+</head>
+<body>
+<div class="header">
+<div class="header-inner">
+<div>
+<h1>Vision Works <span>General Contracting</span></h1>
+<div class="tagline">Poplar Bluff, MO</div>
+</div>
+<div class="nav">
+<a href="/business" class="{% if request.path == '/business' %}active{% endif %}">Dashboard</a>
+<a href="/business/clients" class="{% if '/clients' in request.path %}active{% endif %}">Clients</a>
+<a href="/business/quotes" class="{% if '/quotes' in request.path %}active{% endif %}">Quotes</a>
+<a href="/business/invoices" class="{% if '/invoices' in request.path %}active{% endif %}">Invoices</a>
+<a href="/business/hours" class="{% if '/hours' in request.path %}active{% endif %}">Hours</a>
+<a href="/business/expenses" class="{% if '/expenses' in request.path %}active{% endif %}">Expenses</a>
+<a href="/business/rates" class="{% if '/rates' in request.path %}active{% endif %}">Rates</a>
+<a href="/business/leads" class="{% if '/leads' in request.path %}active{% endif %}">Leads</a>
+<a href="/business/social" class="{% if '/social' in request.path %}active{% endif %}">Social</a>
+</div>
+</div>
+</div>
+<div class="main">
+{% block content %}{% endblock %}
+</div>
+</body>
+</html>

@@ -1,28 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Add Client</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
-h1{color:#89b4fa;margin-bottom:1.5rem}
-label{display:block;margin:1rem 0 .3rem;color:#a6adc8}
-input,textarea{width:100%;max-width:500px;padding:.6rem;background:#313244;border:1px solid #45475a;border-radius:6px;color:#cdd6f4;font-size:1rem}
-input:focus{border-color:#89b4fa;outline:none}
-.btn{background:#89b4fa;color:#1e1e2e;border:none;padding:.6rem 1.5rem;border-radius:6px;font-weight:700;cursor:pointer;margin-top:1rem}
-.btn:hover{background:#74c7ec}
-a{color:#89b4fa}
-</style>
-</head>
-<body>
-<h1>Add Client</h1>
+{% extends "business/base.html" %}
+{% block title %}Add Client — Vision Works{% endblock %}
+{% block content %}
+<div class="page-header"><h2>Add Client</h2></div>
+<div class="form-card">
 <form method="POST">
-<label>Name *</label><input name="name" required>
-<label>Phone</label><input name="phone">
-<label>Email</label><input name="email" type="email">
-<label>Address</label><textarea name="address" rows="2"></textarea>
-<button class="btn">Save</button>
-<a href="/business/clients" style="margin-left:1rem">Cancel</a>
+<div class="form-group"><label>Name *</label><input name="name" required></div>
+<div class="form-row">
+<div class="form-group"><label>Phone</label><input name="phone"></div>
+<div class="form-group"><label>Email</label><input name="email" type="email"></div>
+</div>
+<div class="form-group"><label>Address</label><textarea name="address" rows="2"></textarea></div>
+<div class="btn-group">
+<button class="btn btn-primary">Save</button>
+<a class="btn btn-secondary" href="/business/clients">Cancel</a>
+</div>
 </form>
-</body>
-</html>
+</div>
+{% endblock %}

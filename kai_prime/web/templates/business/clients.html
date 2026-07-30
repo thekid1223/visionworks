@@ -1,39 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Vision Works — Clients</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Segoe UI,sans-serif;background:#1e1e2e;color:#cdd6f4;padding:2rem}
-h1{color:#89b4fa;margin-bottom:1.5rem}
-.nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
-.nav a{background:#313244;padding:.5rem 1rem;border-radius:6px;color:#89b4fa;text-decoration:none;font-size:.85rem}
-.nav a:hover{background:#45475a}
-.btn{display:inline-block;background:#89b4fa;color:#1e1e2e;padding:.5rem 1rem;border-radius:6px;text-decoration:none;font-weight:700;margin-bottom:1rem}
-.btn:hover{background:#74c7ec}
-table{width:100%;border-collapse:collapse;background:#313244;border-radius:8px;overflow:hidden}
-th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid #45475a}
-th{background:#45475a;color:#89b4fa}
-tr:hover{background:#3a3b4e}
-a{color:#89b4fa;text-decoration:none}
-a:hover{text-decoration:underline}
-small{color:#6c7086;font-size:.8rem}
-form{display:inline}
-</style>
-</head>
-<body>
-<h1>Clients</h1>
-<div class="nav">
-<a href="/business">Dashboard</a>
-<a href="/business/clients">Clients</a>
-<a href="/business/quotes">Quotes</a>
-<a href="/business/invoices">Invoices</a>
-<a href="/business/hours">Hours</a>
-<a href="/business/expenses">Expenses</a>
-<a href="/business/quotes/estimate">AI Estimate</a>
-<a href="/business/rates">Rates</a><a href="/business/social">Social</a><a href="/business/leads">Leads</a>
-</div>
-<a class="btn" href="/business/clients/add">+ Add Client</a>
+{% extends "business/base.html" %}
+{% block title %}Clients — Vision Works{% endblock %}
+{% block content %}
+<div class="page-header"><h2>Clients</h2><a class="btn btn-primary" href="/business/clients/add">+ Add Client</a></div>
+<div class="table-wrap">
 <table>
 <tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th></th></tr>
 {% for c in clients %}
@@ -41,17 +10,19 @@ form{display:inline}
 <td>{{c.name}}</td>
 <td>{{c.phone or ''}}</td>
 <td>{{c.email or ''}}</td>
-<td><small>{{c.address or ''}}</small></td>
+<td><small style="color:var(--text-dim)">{{c.address or ''}}</small></td>
 <td>
-<a href="/business/quotes/new?client_id={{c.id}}">Quote</a>
+<div class="btn-group" style="margin:0">
+<a class="btn btn-secondary btn-sm" href="/business/quotes/new?client_id={{c.id}}">Quote</a>
 <form method="POST" action="/business/clients/{{c.id}}/delete" onsubmit="return confirm('Delete this client?')" style="display:inline">
-<button style="background:none;border:none;color:#f38ba8;cursor:pointer;text-decoration:underline">Delete</button>
+<button class="btn btn-danger btn-sm">Delete</button>
 </form>
+</div>
 </td>
 </tr>
 {% else %}
 <tr><td colspan="5">No clients yet</td></tr>
 {% endfor %}
 </table>
-</body>
-</html>
+</div>
+{% endblock %}
