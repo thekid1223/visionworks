@@ -78,17 +78,17 @@ body{font-family:'Segoe UI',-apple-system,sans-serif;background:var(--bg);color:
 .badge.purple{background:rgba(188,140,255,.15);color:#bc8cff}
 .badge.gray{background:rgba(136,146,166,.15);color:var(--text-muted)}
 
-/* Selects */
-select{background:var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right .8rem center;appearance:none;cursor:pointer;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:border-color .2s;padding:.65rem 2.2rem .65rem .9rem;width:auto}
-select:hover{border-color:var(--border-light)}
-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+/* Selects — one uniform style for all */
+select, .form-card select{background:#1a2035 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right .8rem center;appearance:none;cursor:pointer;border:1px solid #2a3a5c;border-radius:8px;color:#e4e8ef;font-family:inherit;font-size:.9rem;outline:none;padding:.65rem 2.2rem .65rem .9rem;width:auto;min-width:100px}
+select:hover, .form-card select:hover{border-color:#3a5070}
+select:focus, .form-card select:focus{border-color:#d4a843;box-shadow:0 0 0 3px rgba(212,168,67,.15)}
+select option{background:#1a2035;color:#e4e8ef;padding:.3rem}
 
 /* Forms */
 .form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:2rem;max-width:800px}
 .form-card label{display:block;font-size:.82rem;color:var(--text-muted);margin-bottom:.35rem;font-weight:500}
-.form-card input,.form-card textarea,.form-card select{width:100%;padding:.65rem .9rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit}
-.form-card select{padding:.65rem 2.2rem .65rem .9rem;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right .8rem center}
-.form-card input:focus,.form-card select:focus,.form-card textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.form-card input,.form-card textarea{width:100%;padding:.65rem .9rem;background:#0b0d15;border:1px solid #1e2a45;border-radius:8px;color:#e4e8ef;font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit}
+.form-card input:focus,.form-card textarea:focus{border-color:#d4a843;box-shadow:0 0 0 3px rgba(212,168,67,.15)}
 .form-card .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:600px){.form-card .form-row{grid-template-columns:1fr}}
 .form-card .form-group{margin-bottom:1rem}
