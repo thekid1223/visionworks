@@ -78,14 +78,16 @@ body{font-family:'Segoe UI',-apple-system,sans-serif;background:var(--bg);color:
 .badge.purple{background:rgba(188,140,255,.15);color:#bc8cff}
 .badge.gray{background:rgba(136,146,166,.15);color:var(--text-muted)}
 
-/* Selects - global fix for drop-down arrows */
-select{background:var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right .6rem center;appearance:none;cursor:pointer;padding-right:2rem}
+/* Selects */
+select{background:var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right .8rem center;appearance:none;cursor:pointer;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:.9rem;outline:none;transition:border-color .2s;padding:.65rem 2.2rem .65rem .9rem;width:auto}
+select:hover{border-color:var(--border-light)}
+select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 
 /* Forms */
 .form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;margin-bottom:2rem;max-width:800px}
 .form-card label{display:block;font-size:.82rem;color:var(--text-muted);margin-bottom:.35rem;font-weight:500}
-.form-card input,.form-card textarea{width:100%;padding:.6rem .8rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit}
-.form-card select{width:100%;padding:.6rem .8rem;background:var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right .8rem center;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit;appearance:none;cursor:pointer}
+.form-card input,.form-card textarea,.form-card select{width:100%;padding:.65rem .9rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit}
+.form-card select{padding:.65rem 2.2rem .65rem .9rem;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892a6' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right .8rem center}
 .form-card input:focus,.form-card select:focus,.form-card textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .form-card .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 @media(max-width:600px){.form-card .form-row{grid-template-columns:1fr}}
