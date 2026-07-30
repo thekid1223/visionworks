@@ -19,6 +19,7 @@ app = Flask(__name__, template_folder=str(Path(__file__).parent / "templates"),
             static_folder=str(Path(__file__).parent / "static"))
 
 brain: KaiBrain | None = None
+_init()  # auto-init when imported by waitress-serve
 session: SessionState | None = None
 _computer = None
 _ctos = None
