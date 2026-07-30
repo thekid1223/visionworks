@@ -51,7 +51,7 @@ def _init_with(brain_obj: KaiBrain, session_obj: SessionState):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return redirect("/business/dashboard")
 
 @app.route("/api/ask", methods=["POST"])
 def api_ask():
