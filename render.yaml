@@ -4,7 +4,7 @@ services:
     runtime: python
     region: oregon
     buildCommand: pip install -r requirements.txt
-    startCommand: waitress-serve --port $PORT kai_prime.web.server:app
+    startCommand: waitress-serve --call --port $PORT kai_prime.web.server:create_app
     envVars:
       - key: GROQ_API_KEY
         sync: false
