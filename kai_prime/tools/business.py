@@ -9,6 +9,10 @@ from datetime import datetime, date
 
 DB_DIR = Path(__file__).resolve().parent.parent / "kai_prime_data"
 DB_PATH = DB_DIR / "business.db"
+try:
+    from kai_prime.config import WORKSPACE
+except Exception:
+    WORKSPACE = Path(__file__).resolve().parent.parent.parent
 COMPANY = {
     "name": "Vision Works General Contracting",
     "owner": "Ryan",
@@ -544,46 +548,93 @@ Return valid JSON ONLY, no other text."""
         if brain is None:
             try:
                 from kai_prime.web.server import brain as server_brain
-                brain = server_brain
+                if server_brain is not None:
+                    brain = server_brain
             except Exception:
                 pass
 
-        if brain is None:
-            return None, "AI brain not available"
+        chain = None
+        if brain is not None:
+            chain = getattr(brain, "_provider_chain", None)
+        if chain is None or not chain.available_providers:
+            try:
+                from kai_prime.brain.provider_chain import ProviderChain
+                chain = ProviderChain(WORKSPACE)
+            except Exception:
+                chain = None
+        if chain is None or not chain.available_providers:
+            return None, "AI service is not set up yet. Add a GROQ_API_KEY or DeepSeek key."
+
+        messages = [
+            {"role": "system", "content": "You are an expert construction estimator for Vision Works General Contracting in Poplar Bluff, MO. Always respond with valid JSON only — never use markdown, never add commentary. Produce a JSON array of line items."},
+            {"role": "user", "content": prompt},
+        ]
 
         try:
-            resp = brain.ask(prompt)
+            resp = chain.chat(messages, temperature=0.2, max_tokens=3000)
         except Exception as ex:
             return None, f"AI error: {ex}"
 
         items = self._parse_estimate(resp)
         if not items:
-            return None, "Could not parse AI output into line items"
+            messages.append({"role": "user", "content": "Your last reply could not be read as a JSON array. Reply with ONLY the raw JSON array — no markdown code fences, no extra words."})
+            try:
+                resp = chain.chat(messages, temperature=0.0, max_tokens=3000)
+            except Exception:
+                resp = None
+            items = self._parse_estimate(resp)
+        if not items:
+            return None, "Could not build the line items from the AI response — please try again."
         return items, None
 
     def _parse_estimate(self, text):
-        text = text.strip()
-        json_match = re.search(r'\[[\s\S]*\]', text)
-        if json_match:
-            text = json_match.group()
-        try:
-            items = json.loads(text)
-            if not isinstance(items, list):
-                items = [items]
-        except json.JSONDecodeError:
+        if not text:
             return None
-        cleaned = []
-        for i in items:
-            desc = i.get("desc", i.get("description", ""))
-            qty = float(i.get("qty", 1))
-            rate = float(i.get("rate", 0))
-            if desc and rate > 0:
-                cleaned.append({
-                    "desc": desc, "qty": qty, "rate": rate,
-                    "unit": i.get("unit", ""), "type": i.get("type", "Labor"),
-                    "total": round(qty * rate, 2)
-                })
-        return cleaned if cleaned else None
+        text = text.strip()
+        fence = re.search(r'```(?:json)?\s*([\s\S]*?)```', text)
+        if fence:
+            text = fence.group(1).strip()
+        candidates = []
+        arr = re.search(r'\[[\s\S]*\]', text)
+        if arr:
+            candidates.append(arr.group())
+        obj = re.search(r'\{[\s\S]*\}', text)
+        if obj:
+            candidates.append(obj.group())
+        for cand in candidates:
+            try:
+                data = json.loads(cand)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(data, dict):
+                for key in ("items", "line_items", "lines", "estimate", "data", "results"):
+                    if isinstance(data.get(key), list):
+                        data = data[key]
+                        break
+            if not isinstance(data, list):
+                data = [data]
+            cleaned = []
+            for i in data:
+                if not isinstance(i, dict):
+                    continue
+                desc = i.get("desc") or i.get("description") or ""
+                try:
+                    qty = float(i.get("qty", 1))
+                except (TypeError, ValueError):
+                    qty = 1
+                try:
+                    rate = float(i.get("rate", 0))
+                except (TypeError, ValueError):
+                    rate = 0
+                if desc and rate > 0:
+                    cleaned.append({
+                        "desc": desc, "qty": qty, "rate": rate,
+                        "unit": i.get("unit", ""), "type": i.get("type", "Labor"),
+                        "total": round(qty * rate, 2)
+                    })
+            if cleaned:
+                return cleaned
+        return None
 
 
 _biz = None
