@@ -24,6 +24,7 @@ _computer = None
 _ctos = None
 _init_lock = threading.Lock()
 _computer_lock = threading.Lock()
+_db_sync_started = False
 
 def _get_computer():
     global _computer
@@ -34,7 +35,7 @@ def _get_computer():
         return _computer
 
 def _init():
-    global brain, session
+    global brain, session, _db_sync_started
     with _init_lock:
         if brain is None:
             brain = KaiBrain(WORKSPACE)
@@ -42,6 +43,13 @@ def _init():
         if session is None:
             session = SessionState()
             session.mark_start()
+        if not _db_sync_started:
+            try:
+                from kai_prime import db_sync
+                db_sync.start_background()
+                _db_sync_started = True
+            except Exception as e:
+                log.warning("DB sync not started: %s", e)
 
 def _init_with(brain_obj: KaiBrain, session_obj: SessionState):
     global brain, session
@@ -1015,6 +1023,11 @@ def api_business_lead():
 
 
 def _redirect(url):
+    try:
+        from kai_prime import db_sync
+        threading.Thread(target=db_sync.backup, daemon=True).start()
+    except Exception:
+        pass
     return redirect(url)
 
 
