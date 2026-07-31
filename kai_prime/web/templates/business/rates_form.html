@@ -1,0 +1,20 @@
+{% extends "business/base.html" %}
+{% block title %}Edit Rate — Vision Works{% endblock %}
+{% block content %}
+<div class="page-header"><h2>Edit Rate</h2></div>
+<div class="form-card">
+<form method="POST">
+<div class="form-group"><label>Category</label><input name="category" value="{{r.category}}" placeholder="e.g. Framing"></div>
+<div class="form-group"><label>Item Name</label><input name="item_name" value="{{r.item_name}}"></div>
+<div class="form-row">
+<div class="form-group"><label>Unit</label><select name="unit"><option value="hour" {{'selected' if r.unit=='hour'}}>hour</option><option value="sq ft" {{'selected' if r.unit=='sq ft'}}>sq ft</option><option value="linear ft" {{'selected' if r.unit=='linear ft'}}>linear ft</option><option value="each" {{'selected' if r.unit=='each'}}>each</option><option value="load" {{'selected' if r.unit=='load'}}>load</option><option value="mile" {{'selected' if r.unit=='mile'}}>mile</option><option value="day" {{'selected' if r.unit=='day'}}>day</option></select></div>
+<div class="form-group"><label>Rate ($)</label><input name="rate" type="number" step="0.01" value="{{r.rate}}"></div>
+</div>
+<div class="form-group"><label>Description</label><input name="description" value="{{r.description or ''}}"></div>
+<div class="btn-group">
+<button class="btn btn-primary">Save Changes</button>
+<a class="btn btn-secondary" href="/business/rates">Cancel</a>
+</div>
+</form>
+</div>
+{% endblock %}

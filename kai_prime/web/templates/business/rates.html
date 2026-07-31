@@ -32,7 +32,12 @@
 <td>{{r.item_name}}</td>
 <td>${{"%.2f"|format(r.rate)}}</td>
 <td>{{r.unit}}</td>
-<td><form method="POST" action="/business/rates/{{r.id}}/delete" onsubmit="return confirm('Delete?')" style="display:inline"><button class="btn btn-danger btn-sm">X</button></form></td>
+<td>
+<div class="btn-group" style="margin:0;flex-wrap:nowrap">
+<a class="btn btn-secondary btn-sm" href="/business/rates/{{r.id}}/edit">Edit</a>
+<form method="POST" action="/business/rates/{{r.id}}/delete" onsubmit="return confirm('Delete?')" style="display:inline"><button class="btn btn-danger btn-sm">X</button></form>
+</div>
+</td>
 </tr>
 {% else %}
 <tr><td colspan="5">No rates yet</td></tr>

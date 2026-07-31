@@ -1,15 +1,15 @@
 {% extends "business/base.html" %}
-{% block title %}Add Customer — Vision Works{% endblock %}
+{% block title %}{{ 'Edit Customer' if client else 'Add Customer' }} — Vision Works{% endblock %}
 {% block content %}
-<div class="page-header"><h2>Add Customer</h2></div>
+<div class="page-header"><h2>{{ 'Edit Customer' if client else 'Add Customer' }}</h2></div>
 <div class="form-card">
 <form method="POST">
-<div class="form-group"><label>Name *</label><input name="name" required></div>
-<div class="form-group"><label>Phone</label><input name="phone" type="tel"></div>
-<div class="form-group"><label>Email</label><input name="email" type="email"></div>
-<div class="form-group"><label>Address</label><textarea name="address" rows="2"></textarea></div>
+<div class="form-group"><label>Name *</label><input name="name" value="{{ client.name if client else '' }}" required></div>
+<div class="form-group"><label>Phone</label><input name="phone" type="tel" value="{{ client.phone or '' if client else '' }}"></div>
+<div class="form-group"><label>Email</label><input name="email" type="email" value="{{ client.email or '' if client else '' }}"></div>
+<div class="form-group"><label>Address</label><textarea name="address" rows="2">{{ client.address or '' if client else '' }}</textarea></div>
 <div class="btn-group">
-<button class="btn btn-primary">Save Customer</button>
+<button class="btn btn-primary">{{ 'Save Changes' if client else 'Save Customer' }}</button>
 <a class="btn btn-secondary" href="/business/clients">Cancel</a>
 </div>
 </form>

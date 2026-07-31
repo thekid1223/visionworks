@@ -37,7 +37,7 @@
 <div class="table-wrap">
 <div class="table-scroll">
 <table>
-<tr><th>Employee</th><th>Date</th><th>Hours</th><th>Rate</th><th>Pay</th><th>Description</th></tr>
+<tr><th>Employee</th><th>Date</th><th>Hours</th><th>Rate</th><th>Pay</th><th>Description</th><th></th></tr>
 {% for h in hours %}
 <tr>
 <td>{{h.employee}}</td>
@@ -46,9 +46,15 @@
 <td>${{"%.2f"|format(h.rate or 0)}}</td>
 <td style="color:var(--success);font-weight:700">${{"%.2f"|format(h.pay)}}</td>
 <td>{{h.description or ''}}</td>
+<td>
+<div class="btn-group" style="margin:0;flex-wrap:nowrap">
+<a class="btn btn-secondary btn-sm" href="/business/hours/{{h.id}}/edit">Edit</a>
+<form method="POST" action="/business/hours/{{h.id}}/delete" style="display:inline" onsubmit="return confirm('Delete this entry?')"><button class="btn btn-danger btn-sm">Delete</button></form>
+</div>
+</td>
 </tr>
 {% else %}
-<tr><td colspan="6">No hours logged yet</td></tr>
+<tr><td colspan="7">No hours logged yet</td></tr>
 {% endfor %}
 </table>
 </div>

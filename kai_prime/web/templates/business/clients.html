@@ -13,6 +13,7 @@
 <td>{{c.email or ''}}</td>
 <td>
 <div class="btn-group" style="margin:0;flex-wrap:nowrap">
+<a class="btn btn-secondary btn-sm" href="/business/clients/{{c.id}}/edit">Edit</a>
 <a class="btn btn-secondary btn-sm" href="/business/quotes/new?client_id={{c.id}}">Quote</a>
 <form method="POST" action="/business/clients/{{c.id}}/delete" onsubmit="return confirm('Delete this customer?')" style="display:inline">
 <button class="btn btn-danger btn-sm">Delete</button>

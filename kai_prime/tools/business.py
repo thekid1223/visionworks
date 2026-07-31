@@ -261,6 +261,10 @@ class BusinessManager:
     def delete_client(self, cid):
         self._run("DELETE FROM clients WHERE id=?", (cid,))
 
+    def update_client(self, cid, name, phone="", email="", address=""):
+        self._run("UPDATE clients SET name=?,phone=?,email=?,address=? WHERE id=?",
+                  (name, phone, email, address, cid))
+
     # ── Jobs / Projects ──
     def add_job(self, client_id, name, description="", status="active", start_date=""):
         return self._run("INSERT INTO jobs (client_id,name,description,status,start_date) VALUES (?,?,?,?,?)",
@@ -402,6 +406,17 @@ class BusinessManager:
             r["total_pay"] = round(r["total_hours"] * float(r.get("avg_rate", 0) or 0), 2)
         return rows
 
+    def get_single_hours(self, hid):
+        r = self._run("SELECT * FROM hours WHERE id=?", (hid,))
+        return r[0] if r else None
+
+    def update_hours(self, hid, employee, date_str, hours, rate=0, description=""):
+        self._run("UPDATE hours SET employee=?,date=?,hours=?,rate=?,description=? WHERE id=?",
+                  (employee, date_str, hours, float(rate or 0), description, hid))
+
+    def delete_hours(self, hid):
+        self._run("DELETE FROM hours WHERE id=?", (hid,))
+
     # ── Expenses ──
     def add_expense(self, category, amount, description="", date_str="", job_id=None):
         d = date_str or datetime.now().strftime("%Y-%m-%d")
@@ -427,6 +442,18 @@ class BusinessManager:
                           GROUP BY e.category ORDER BY total DESC""",
                         (f"-{days}",))
 
+    def get_single_expense(self, eid):
+        r = self._run("SELECT * FROM expenses WHERE id=?", (eid,))
+        return r[0] if r else None
+
+    def update_expense(self, eid, category, amount, description="", date_str=""):
+        d = date_str or datetime.now().strftime("%Y-%m-%d")
+        self._run("UPDATE expenses SET category=?,amount=?,date=?,description=? WHERE id=?",
+                  (category, amount, d, description, eid))
+
+    def delete_expense(self, eid):
+        self._run("DELETE FROM expenses WHERE id=?", (eid,))
+
     # ── Local Rates ──
     def get_local_rates(self, category=""):
         if category:
@@ -443,6 +470,10 @@ class BusinessManager:
 
     def delete_local_rate(self, rid):
         self._run("DELETE FROM local_rates WHERE id=?", (rid,))
+
+    def update_local_rate(self, rid, category, item_name, unit, rate, description=""):
+        self._run("UPDATE local_rates SET category=?,item_name=?,unit=?,rate=?,description=? WHERE id=?",
+                  (category, item_name, unit, rate, description, rid))
 
     # ── Social / Leads ──
     def add_lead(self, name, phone="", email="", description="", source=""):
@@ -461,10 +492,15 @@ class BusinessManager:
     def update_lead_status(self, lid, status):
         self._run("UPDATE leads SET status=? WHERE id=?", (status, lid))
 
+    def update_lead(self, lid, name, phone="", email="", description=""):
+        self._run("UPDATE leads SET name=?,phone=?,email=?,description=? WHERE id=?",
+                  (name, phone, email, description, lid))
+
     def delete_lead(self, lid):
         self._run("DELETE FROM leads WHERE id=?", (lid,))
 
     # ── CSV Export ──
+    def export_csv(self, table):
         mapper = {
             "clients": ("SELECT * FROM clients ORDER BY name", []),
             "quotes": ("SELECT q.*, c.name AS client_name FROM quotes q JOIN clients c ON q.client_id=c.id ORDER BY q.date DESC", []),

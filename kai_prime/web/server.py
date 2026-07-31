@@ -767,6 +767,17 @@ def business_client_delete(cid):
     _get_biz().delete_client(cid)
     return _redirect("/business/clients")
 
+@app.route("/business/clients/<int:cid>/edit", methods=["GET", "POST"])
+def business_client_edit(cid):
+    b = _get_biz()
+    c = b.get_client(cid)
+    if not c:
+        return ("Not found", 404)
+    if request.method == "POST":
+        b.update_client(cid, request.form["name"], request.form.get("phone",""), request.form.get("email",""), request.form.get("address",""))
+        return _redirect("/business/clients")
+    return render_template("business/client_form.html", client=c)
+
 @app.route("/business/quotes")
 def business_quotes():
     b = _get_biz()
@@ -931,6 +942,22 @@ def business_hours():
     summary = b.get_hours_summary(days=30)
     return render_template("business/hours.html", hours=hours, summary=summary)
 
+@app.route("/business/hours/<int:hid>/edit", methods=["GET", "POST"])
+def business_hours_edit(hid):
+    b = _get_biz()
+    h = b.get_single_hours(hid)
+    if not h:
+        return ("Not found", 404)
+    if request.method == "POST":
+        b.update_hours(hid, request.form["employee"], request.form.get("date",""), float(request.form["hours"]), request.form.get("rate", 0), request.form.get("description",""))
+        return _redirect("/business/hours")
+    return render_template("business/hours_form.html", h=h)
+
+@app.route("/business/hours/<int:hid>/delete", methods=["POST"])
+def business_hours_delete(hid):
+    _get_biz().delete_hours(hid)
+    return _redirect("/business/hours")
+
 @app.route("/business/expenses", methods=["GET", "POST"])
 def business_expenses():
     b = _get_biz()
@@ -940,6 +967,22 @@ def business_expenses():
     expenses = b.get_expenses(days=30)
     by_cat = b.get_expenses_by_category(days=30)
     return render_template("business/expenses.html", expenses=expenses, by_cat=by_cat, categories=EXPENSE_CATEGORIES)
+
+@app.route("/business/expenses/<int:eid>/edit", methods=["GET", "POST"])
+def business_expense_edit(eid):
+    b = _get_biz()
+    e = b.get_single_expense(eid)
+    if not e:
+        return ("Not found", 404)
+    if request.method == "POST":
+        b.update_expense(eid, request.form["category"], float(request.form["amount"]), request.form.get("description",""), request.form.get("date",""))
+        return _redirect("/business/expenses")
+    return render_template("business/expenses_form.html", e=e, categories=EXPENSE_CATEGORIES)
+
+@app.route("/business/expenses/<int:eid>/delete", methods=["POST"])
+def business_expense_delete(eid):
+    _get_biz().delete_expense(eid)
+    return _redirect("/business/expenses")
 
 # ── Local Rates Management ──
 
@@ -957,6 +1000,18 @@ def business_rates():
 def business_rate_delete(rid):
     _get_biz().delete_local_rate(rid)
     return _redirect("/business/rates")
+
+@app.route("/business/rates/<int:rid>/edit", methods=["GET", "POST"])
+def business_rate_edit(rid):
+    b = _get_biz()
+    rates = b.get_local_rates()
+    rate = next((r for r in rates if r["id"] == rid), None)
+    if not rate:
+        return ("Not found", 404)
+    if request.method == "POST":
+        b.update_local_rate(rid, request.form["category"], request.form["item_name"], request.form["unit"], float(request.form["rate"]), request.form.get("description",""))
+        return _redirect("/business/rates")
+    return render_template("business/rates_form.html", r=rate)
 
 @app.route("/business/export/<table>")
 def business_export(table):
@@ -1007,6 +1062,19 @@ def business_lead_status(lid):
 def business_lead_delete(lid):
     _get_biz().delete_lead(lid)
     return _redirect("/business/leads")
+
+@app.route("/business/leads/<int:lid>/edit", methods=["GET", "POST"])
+def business_lead_edit(lid):
+    b = _get_biz()
+    leads = b.get_leads(days=3650)
+    lead = next((x for x in leads if x["id"] == lid), None)
+    if not lead:
+        return ("Not found", 404)
+    if request.method == "POST":
+        b.update_lead(lid, request.form["name"], request.form.get("phone",""), request.form.get("email",""), request.form.get("description",""))
+        b.update_lead_status(lid, request.form.get("status", "new"))
+        return _redirect("/business/leads")
+    return render_template("business/leads_form.html", lead=lead)
 
 @app.route("/business/lead-capture")
 def business_lead_capture():

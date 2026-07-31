@@ -1,0 +1,26 @@
+{% extends "business/base.html" %}
+{% block title %}Edit Lead — Vision Works{% endblock %}
+{% block content %}
+<div class="page-header"><h2>Edit Lead</h2></div>
+<div class="form-card">
+<form method="POST">
+<div class="form-group"><label>Name *</label><input name="name" value="{{lead.name}}" required></div>
+<div class="form-row">
+<div class="form-group"><label>Phone</label><input name="phone" type="tel" value="{{lead.phone or ''}}"></div>
+<div class="form-group"><label>Email</label><input name="email" type="email" value="{{lead.email or ''}}"></div>
+</div>
+<div class="form-group"><label>Status</label><select name="status">
+<option value="new" {{'selected' if lead.status=='new'}}>New</option>
+<option value="contacted" {{'selected' if lead.status=='contacted'}}>Contacted</option>
+<option value="qualified" {{'selected' if lead.status=='qualified'}}>Qualified</option>
+<option value="converted" {{'selected' if lead.status=='converted'}}>Converted</option>
+<option value="lost" {{'selected' if lead.status=='lost'}}>Lost</option>
+</select></div>
+<div class="form-group"><label>Description</label><textarea name="description" rows="3">{{lead.description or ''}}</textarea></div>
+<div class="btn-group">
+<button class="btn btn-primary">Save Changes</button>
+<a class="btn btn-secondary" href="/business/leads">Cancel</a>
+</div>
+</form>
+</div>
+{% endblock %}

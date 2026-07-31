@@ -30,11 +30,19 @@
 <div class="table-wrap">
 <div class="table-scroll">
 <table>
-<tr><th>Date</th><th>Category</th><th>Amount</th><th>Description</th></tr>
+<tr><th>Date</th><th>Category</th><th>Amount</th><th>Description</th><th></th></tr>
 {% for e in expenses %}
-<tr><td>{{e.date[:10]}}</td><td>{{e.category}}</td><td>${{"%.2f"|format(e.amount)}}</td><td>{{e.description or ''}}</td></tr>
+<tr>
+<td>{{e.date[:10]}}</td><td>{{e.category}}</td><td>${{"%.2f"|format(e.amount)}}</td><td>{{e.description or ''}}</td>
+<td>
+<div class="btn-group" style="margin:0;flex-wrap:nowrap">
+<a class="btn btn-secondary btn-sm" href="/business/expenses/{{e.id}}/edit">Edit</a>
+<form method="POST" action="/business/expenses/{{e.id}}/delete" style="display:inline" onsubmit="return confirm('Delete this expense?')"><button class="btn btn-danger btn-sm">Delete</button></form>
+</div>
+</td>
+</tr>
 {% else %}
-<tr><td colspan="4">No expenses</td></tr>
+<tr><td colspan="5">No expenses</td></tr>
 {% endfor %}
 </table>
 </div>
