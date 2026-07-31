@@ -3,6 +3,7 @@
 {% block content %}
 <div class="page-header"><h2>Invoices</h2><a class="btn btn-primary" href="/business/invoices/new">+ New Invoice</a></div>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
 <tr><th>#</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
 {% for inv in invoices %}
@@ -13,8 +14,8 @@
 <td><span class="badge {{'green' if inv.paid else 'red'}}">{{'Paid' if inv.paid else 'Unpaid'}}</span></td>
 <td>{{inv.date[:10]}}</td>
 <td>
-<div class="btn-group" style="margin:0">
-{% if not inv.paid %}<form method="POST" action="/business/invoices/{{inv.id}}/pay" style="display:inline"><button class="btn btn-secondary btn-sm" style="color:var(--success)">Mark Paid</button></form>{% endif %}
+<div class="btn-group" style="margin:0;flex-wrap:nowrap">
+{% if not inv.paid %}<form method="POST" action="/business/invoices/{{inv.id}}/pay" style="display:inline"><button class="btn btn-success btn-sm">Mark Paid</button></form>{% endif %}
 <form method="POST" action="/business/invoices/{{inv.id}}/delete" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">Delete</button></form>
 </div>
 </td>
@@ -23,5 +24,6 @@
 <tr><td colspan="6">No invoices yet</td></tr>
 {% endfor %}
 </table>
+</div>
 </div>
 {% endblock %}

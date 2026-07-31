@@ -2,13 +2,14 @@
 {% block title %}Invoice {{inv.invoice_number}} — Vision Works{% endblock %}
 {% block content %}
 <div class="page-header"><h2>{{inv.invoice_number or 'Invoice #'~inv.id}} <small><span class="badge {{'green' if inv.paid else 'red'}}">{{'Paid' if inv.paid else 'Unpaid'}}</span></small></h2></div>
-<div style="color:var(--text-muted);margin-bottom:1.5rem;font-size:.9rem">
+<div style="color:var(--text-muted);margin-bottom:1.5rem;font-size:.92rem">
 <strong>Client:</strong> {{inv.client_name}}<br>
 <strong>Date:</strong> {{inv.date[:10]}}<br>
 {% if inv.payment_date %}<strong>Paid on:</strong> {{inv.payment_date[:10]}}<br>{% endif %}
 {% if inv.payment_method %}<strong>Method:</strong> {{inv.payment_method}}{% endif %}
 </div>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
 <tr><th>#</th><th>Description</th><th>Type</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Total</th></tr>
 {% for item in inv.items %}
@@ -22,17 +23,18 @@
 <td>${{"%.2f"|format(item.total)}}</td>
 </tr>
 {% endfor %}
-<tr style="color:var(--text-muted);font-size:.9rem"><td colspan="6">Subtotal</td><td>${{"%.2f"|format(inv.subtotal)}}</td></tr>
+<tr class="muted-row"><td colspan="6">Subtotal</td><td>${{"%.2f"|format(inv.subtotal)}}</td></tr>
 {% if inv.tax_rate > 0 %}
-<tr style="color:var(--accent);font-size:.9rem"><td colspan="6">Tax ({{inv.tax_rate}}%)</td><td>${{"%.2f"|format(inv.tax_amount)}}</td></tr>
+<tr class="accent-row"><td colspan="6">Tax ({{inv.tax_rate}}%)</td><td>${{"%.2f"|format(inv.tax_amount)}}</td></tr>
 {% endif %}
-<tr style="border-top:2px solid var(--accent);font-weight:700;font-size:1.05rem"><td colspan="6">Total</td><td>${{"%.2f"|format(inv.total)}}</td></tr>
+<tr class="totals-row"><td colspan="6">Total</td><td>${{"%.2f"|format(inv.total)}}</td></tr>
 </table>
 </div>
-{% if inv.notes %}<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;white-space:pre-wrap">{{inv.notes}}</div>{% endif %}
+</div>
+{% if inv.notes %}<div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.25rem;white-space:pre-wrap">{{inv.notes}}</div>{% endif %}
 <div class="btn-group">
 <button class="btn btn-primary" onclick="window.print()">Print / PDF</button>
-{% if not inv.paid %}<form method="POST" action="/business/invoices/{{inv.id}}/pay" style="display:inline"><button class="btn btn-primary" style="background:linear-gradient(135deg,var(--success),#1a7f30)">Mark Paid</button></form>{% endif %}
+{% if not inv.paid %}<form method="POST" action="/business/invoices/{{inv.id}}/pay" style="display:inline"><button class="btn btn-success">Mark Paid</button></form>{% endif %}
 <a class="btn btn-secondary" href="/business/invoices">Back</a>
 </div>
 {% endblock %}

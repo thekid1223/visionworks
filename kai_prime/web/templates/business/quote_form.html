@@ -3,23 +3,23 @@
 {% block head_extra %}
 <style>
 .qad{position:relative;display:inline-block}
-.qad-menu{display:none;position:absolute;top:100%;left:0;background:var(--bg-hover);border:1px solid var(--border);border-radius:var(--radius-sm);max-height:300px;overflow-y:auto;width:400px;z-index:100}
+.qad-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid var(--border-strong);border-radius:var(--radius-sm);max-height:300px;overflow-y:auto;width:280px;z-index:100;box-shadow:var(--shadow-lg)}
 .qad-menu.show{display:block}
-.qad-item{padding:.4rem .6rem;cursor:pointer;font-size:.8rem;border-bottom:1px solid var(--border)}
-.qad-item:hover{background:var(--border)}
-.qad-item .cat{color:var(--accent);font-size:.7rem}
-.qad-item .rate{color:var(--accent-soft);float:right}
+.qad-item{padding:.55rem .7rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--border)}
+.qad-item:hover{background:var(--primary-soft)}
+.qad-item .cat{color:var(--primary);font-size:.7rem;text-transform:uppercase;letter-spacing:.03em}
+.qad-item .rate{color:var(--text-muted);float:right;font-weight:600}
 </style>
 {% endblock %}
 {% block content %}
-<div class="page-header"><h2>New Quote <small>Add line items manually or use Quick Add from local rates</small></h2></div>
+<div class="page-header"><h2>New Quote</h2></div>
 <div class="form-card">
 <form method="POST">
-<div class="form-group"><label>Client</label><select name="client_id" required>{% for c in clients %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}</select></div>
-<div class="form-group"><label>Tax Rate (%)</label><input name="tax_rate" type="number" step="0.01" value="0" style="max-width:80px"></div>
+<div class="form-group"><label>Customer</label><select name="client_id" required>{% for c in clients %}<option value="{{c.id}}">{{c.name}}</option>{% endfor %}</select></div>
+<div class="form-group"><label>Tax Rate (%)</label><input name="tax_rate" type="number" step="0.01" value="0" style="max-width:110px"></div>
 <div class="form-group">
 <label>Line Items</label>
-<div class="btn-group" style="margin-top:.5rem">
+<div class="btn-group" style="margin-top:.35rem">
 <div class="qad">
 <button type="button" class="btn btn-secondary btn-sm" onclick="toggleQuickAdd()">+ Quick Add from Rates</button>
 <div class="qad-menu" id="qadMenu">
@@ -33,19 +33,23 @@
 <button type="button" class="btn btn-secondary btn-sm" onclick="addBlankLine()">+ Add Blank Line</button>
 </div>
 </div>
+<div class="table-wrap" style="box-shadow:none">
+<div class="table-scroll">
 <table id="items">
-<tr><th style="width:30px">#</th><th>Description</th><th style="width:90px">Type</th><th style="width:60px">Qty</th><th style="width:55px">Unit</th><th style="width:70px">Rate</th><th style="width:70px">Total</th><th style="width:30px"></th></tr>
+<tr><th style="width:30px">#</th><th>Description</th><th>Type</th><th style="width:70px">Qty</th><th>Unit</th><th style="width:80px">Rate</th><th style="width:75px">Total</th><th style="width:34px"></th></tr>
 <tr class="line">
 <td class="line-num">1</td>
-<td><input class="desc-input" style="min-width:160px;font-size:.85rem" name="desc[]" placeholder="Description of work"></td>
-<td><select class="cat-select" style="width:100px;font-size:.85rem" name="type[]"><option value="Labor">Labor</option><option value="Material">Material</option><option value="Subcontractor">Sub</option><option value="Equipment">Equipment</option><option value="Permit">Permit</option><option value="Transportation">Transport</option></select></td>
-<td><input class="qty-input" style="width:70px;font-size:.85rem" name="qty[]" type="number" step="0.01" value="1"></td>
-<td><select class="unit-select" style="width:75px;font-size:.85rem" name="unit[]"><option value="hour">hour</option><option value="sq ft">sq ft</option><option value="linear ft">lin ft</option><option value="each">each</option><option value="load">load</option><option value="day">day</option><option value="sq yd">sq yd</option><option value="mile">mile</option><option value="lump">lump</option></select></td>
-<td><input class="rate-input" style="width:80px;font-size:.85rem" name="rate[]" type="number" step="0.01" placeholder="0.00"></td>
-<td class="line-total" style="font-weight:700;font-size:.85rem">$0.00</td>
+<td><input class="desc-input" style="min-width:150px;font-size:.9rem" name="desc[]" placeholder="Description of work"></td>
+<td><select class="cat-select" style="width:110px;font-size:.9rem" name="type[]"><option value="Labor">Labor</option><option value="Material">Material</option><option value="Subcontractor">Sub</option><option value="Equipment">Equipment</option><option value="Permit">Permit</option><option value="Transportation">Transport</option></select></td>
+<td><input class="qty-input" style="width:70px;font-size:.9rem" name="qty[]" type="number" step="0.01" value="1"></td>
+<td><select class="unit-select" style="width:90px;font-size:.9rem" name="unit[]"><option value="hour">hour</option><option value="sq ft">sq ft</option><option value="linear ft">lin ft</option><option value="each">each</option><option value="load">load</option><option value="day">day</option><option value="sq yd">sq yd</option><option value="mile">mile</option><option value="lump">lump</option></select></td>
+<td><input class="rate-input" style="width:80px;font-size:.9rem" name="rate[]" type="number" step="0.01" placeholder="0.00"></td>
+<td class="line-total" style="font-weight:700;font-size:.9rem">$0.00</td>
 <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove();renumber()">X</button></td>
 </tr>
 </table>
+</div>
+</div>
 <div class="form-group"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
 <div class="btn-group">
 <button class="btn btn-primary">Create Quote</button>
@@ -54,7 +58,6 @@
 </form>
 </div>
 <script>
-var rateData = [{% for r in rates %}{name: {{r.item_name|tojson}}, rate: {{r.rate}}, unit: {{r.unit|tojson}}, cat: {{r.category|tojson}}},{% endfor %}];
 function toggleQuickAdd(){var m=document.getElementById('qadMenu');m.classList.toggle('show')}
 document.addEventListener('click',function(e){var m=document.getElementById('qadMenu');if(!e.target.closest('.qad')){m.classList.remove('show')}})
 function addRateItem(desc,rate,unit,cat){addLine(desc,rate,unit,cat)}

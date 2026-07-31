@@ -1,8 +1,9 @@
 {% extends "business/base.html" %}
 {% block title %}Quotes — Vision Works{% endblock %}
 {% block content %}
-<div class="page-header"><h2>Quotes</h2><div class="btn-group"><a class="btn btn-primary" href="/business/quotes/new">+ New Quote</a><a class="btn btn-secondary" href="/business/quotes/estimate">AI Estimate</a></div></div>
+<div class="page-header"><h2>Quotes</h2><div class="btn-group"><a class="btn btn-primary" href="/business/quotes/new">+ New Quote</a><a class="btn btn-secondary" href="/business/quotes/estimate">Quote Builder</a></div></div>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
 <tr><th>#</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
 {% for q in quotes %}
@@ -13,16 +14,17 @@
 <td><span class="badge {{'green' if q.status=='approved' else 'yellow' if q.status=='sent' else 'gray'}}">{{q.status}}</span></td>
 <td>{{q.date[:10]}}</td>
 <td>
-<div class="btn-group" style="margin:0">
+<div class="btn-group" style="margin:0;flex-wrap:nowrap">
 <a class="btn btn-secondary btn-sm" href="/business/quotes/{{q.id}}">View</a>
 <form method="POST" action="/business/quotes/{{q.id}}/invoice" style="display:inline"><button class="btn btn-secondary btn-sm" style="color:var(--success)">Invoice</button></form>
-<form method="POST" action="/business/quotes/{{q.id}}/delete" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">Delete</button></form>
+<form method="POST" action="/business/quotes/{{q.id}}/delete" style="display:inline" onsubmit="return confirm('Delete this quote?')"><button class="btn btn-danger btn-sm">Delete</button></form>
 </div>
 </td>
 </tr>
 {% else %}
-<tr><td colspan="6">No quotes yet</td></tr>
+<tr><td colspan="6">No quotes yet — tap "+ New Quote" to create your first one</td></tr>
 {% endfor %}
 </table>
+</div>
 </div>
 {% endblock %}

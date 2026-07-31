@@ -1,17 +1,17 @@
 {% extends "business/base.html" %}
-{% block title %}AI Estimate — Vision Works{% endblock %}
+{% block title %}Quote Builder — Vision Works{% endblock %}
 {% block content %}
-<div class="page-header"><h2>AI Quote Estimate <small>Describe the job and Kai generates line items</small></h2></div>
+<div class="page-header"><h2>Quote Builder<small>Describe the job and it builds the line items for you</small></h2></div>
 {% if error %}
-<div style="background:rgba(218,54,51,.1);border:1px solid rgba(218,54,51,.2);color:var(--danger);padding:.8rem;border-radius:var(--radius-sm);margin-bottom:1.5rem">{{ error }}</div>
+<div style="background:var(--danger-soft);border:1px solid rgba(220,38,38,.25);color:var(--danger);padding:.8rem;border-radius:var(--radius-sm);margin-bottom:1.25rem">{{ error }}</div>
 {% endif %}
 <div class="form-card">
 <form method="POST">
-<div class="form-group"><label>Client Name</label><input name="client_name" placeholder="e.g. John Smith" required></div>
+<div class="form-group"><label>Customer Name</label><input name="client_name" placeholder="e.g. John Smith" required></div>
 <div class="form-group"><label>Job Description</label><textarea name="description" rows="5" placeholder="Example: Replace a 20x20 ft asphalt shingle roof on a single-story house in Poplar Bluff. Remove existing shingles, install new underlayment and architectural shingles. Includes two dormers and one chimney flashing.">{{description or ''}}</textarea></div>
-<p style="color:var(--text-dim);font-size:.8rem;margin-top:-.5rem;margin-bottom:1rem">Be as detailed as possible — include dimensions, materials, location, and any special requirements.</p>
-<div class="form-group"><label>Tax Rate (%)</label><input name="tax_rate" type="number" step="0.01" value="0" style="max-width:100px"></div>
-<button class="btn btn-primary">Generate Estimate</button>
+<p class="hint">Be as detailed as possible — include dimensions, materials, location, and any special requirements.</p>
+<div class="form-group"><label>Tax Rate (%)</label><input name="tax_rate" type="number" step="0.01" value="0" style="max-width:110px"></div>
+<button class="btn btn-primary">Build Quote</button>
 </form>
 </div>
 {% endblock %}

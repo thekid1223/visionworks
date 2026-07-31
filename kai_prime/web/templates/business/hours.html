@@ -1,10 +1,10 @@
 {% extends "business/base.html" %}
-{% block title %}Employee Hours — Vision Works{% endblock %}
+{% block title %}Hours — Vision Works{% endblock %}
 {% block content %}
-<div class="page-header"><h2>Employee Hours & Pay</h2></div>
+<div class="page-header"><h2>Hours & Pay</h2></div>
 <div class="metric-row">
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Log Hours</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:1rem">Log Hours</h3>
 <form method="POST">
 <div class="form-group"><label>Employee Name</label><input name="employee" required></div>
 <div class="form-row">
@@ -19,7 +19,7 @@
 </form>
 </div>
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Summary (30d)</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:1rem">Summary (30d)</h3>
 {% for s in summary %}
 <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
 <span>{{s.employee}}</span>
@@ -35,6 +35,7 @@
 </div>
 </div>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
 <tr><th>Employee</th><th>Date</th><th>Hours</th><th>Rate</th><th>Pay</th><th>Description</th></tr>
 {% for h in hours %}
@@ -43,12 +44,13 @@
 <td>{{h.date}}</td>
 <td>{{h.hours}}</td>
 <td>${{"%.2f"|format(h.rate or 0)}}</td>
-<td style="color:var(--accent);font-weight:700">${{"%.2f"|format(h.pay)}}</td>
+<td style="color:var(--success);font-weight:700">${{"%.2f"|format(h.pay)}}</td>
 <td>{{h.description or ''}}</td>
 </tr>
 {% else %}
 <tr><td colspan="6">No hours logged yet</td></tr>
 {% endfor %}
 </table>
+</div>
 </div>
 {% endblock %}

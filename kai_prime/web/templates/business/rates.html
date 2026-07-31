@@ -1,10 +1,10 @@
 {% extends "business/base.html" %}
-{% block title %}Local Rates — Vision Works{% endblock %}
+{% block title %}Rates — Vision Works{% endblock %}
 {% block content %}
-<div class="page-header"><h2>Local Rates <small>Standard rates used for AI quote estimation</small></h2></div>
+<div class="page-header"><h2>Rates <small>Standard rates used for quote estimation</small></h2></div>
 <div class="metric-row">
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Add Rate</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:1rem">Add Rate</h3>
 <form method="POST">
 <div class="form-group"><label>Category</label><input name="category" list="cat-list" placeholder="e.g. Framing"><datalist id="cat-list">{% for c in categories %}<option value="{{c}}">{% endfor %}</datalist></div>
 <div class="form-group"><label>Item Name</label><input name="item_name" placeholder="e.g. Wall Framing Labor"></div>
@@ -17,13 +17,14 @@
 </form>
 </div>
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">All Rates ({{rates|length}})</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:1rem">All Rates ({{rates|length}})</h3>
+<div class="table-scroll">
 <table>
 <tr><th>Category</th><th>Item</th><th>Rate</th><th>Unit</th><th></th></tr>
 {% set last_cat = namespace(v='') %}
 {% for r in rates %}
 {% if r.category != last_cat.v %}
-<tr><td colspan="5" style="color:var(--accent);font-weight:700;padding-top:.75rem">{{r.category}}</td></tr>
+<tr><td colspan="5" style="color:var(--primary);font-weight:700;padding-top:.75rem">{{r.category}}</td></tr>
 {% set last_cat.v = r.category %}
 {% endif %}
 <tr>
@@ -37,6 +38,7 @@
 <tr><td colspan="5">No rates yet</td></tr>
 {% endfor %}
 </table>
+</div>
 </div>
 </div>
 {% endblock %}

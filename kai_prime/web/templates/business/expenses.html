@@ -4,7 +4,7 @@
 <div class="page-header"><h2>Expenses</h2></div>
 <div class="metric-row">
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Add Expense</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:1rem">Add Expense</h3>
 <form method="POST">
 <div class="form-group"><label>Category</label><select name="category">{% for cat in categories %}<option value="{{cat}}">{{cat}}</option>{% endfor %}</select></div>
 <div class="form-row">
@@ -16,11 +16,11 @@
 </form>
 </div>
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">By Category (30d)</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:1rem">By Category (30d)</h3>
 {% for c in by_cat %}
 <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)">
 <span>{{c.category}}</span>
-<span style="color:var(--accent);font-weight:700">${{"%.2f"|format(c.total)}}</span>
+<span style="color:var(--success);font-weight:700">${{"%.2f"|format(c.total)}}</span>
 </div>
 {% else %}
 <p style="color:var(--text-dim)">No expenses</p>
@@ -28,6 +28,7 @@
 </div>
 </div>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
 <tr><th>Date</th><th>Category</th><th>Amount</th><th>Description</th></tr>
 {% for e in expenses %}
@@ -36,5 +37,6 @@
 <tr><td colspan="4">No expenses</td></tr>
 {% endfor %}
 </table>
+</div>
 </div>
 {% endblock %}

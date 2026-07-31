@@ -8,25 +8,43 @@
 {% block head_extra %}{% endblock %}
 </head>
 <body>
-<div class="header">
+<header class="header">
 <div class="header-inner">
+<div class="brand">
+<div class="brand-logo">VW</div>
 <div>
-<h1>Vision Works <span>General Contracting</span></h1>
-<div class="tagline">Poplar Bluff, MO</div>
+<h1>Vision Works<small>General Contracting · Poplar Bluff, MO</small></h1>
 </div>
-<div class="nav">
+</div>
+<button class="menu-btn" onclick="document.getElementById('mobileNav').classList.add('open');document.getElementById('navOverlay').style.display='block'" aria-label="Menu">&#9776;</button>
+<nav class="nav">
 <a href="/business" class="{% if request.path == '/business' %}active{% endif %}">Dashboard</a>
-<a href="/business/clients" class="{% if '/clients' in request.path %}active{% endif %}">Clients</a>
 <a href="/business/quotes" class="{% if '/quotes' in request.path %}active{% endif %}">Quotes</a>
 <a href="/business/invoices" class="{% if '/invoices' in request.path %}active{% endif %}">Invoices</a>
 <a href="/business/hours" class="{% if '/hours' in request.path %}active{% endif %}">Hours</a>
 <a href="/business/expenses" class="{% if '/expenses' in request.path %}active{% endif %}">Expenses</a>
+<a href="/business/clients" class="{% if '/clients' in request.path %}active{% endif %}">Customers</a>
+<a href="/business/rates" class="{% if '/rates' in request.path %}active{% endif %}">Rates</a>
+<a href="/business/leads" class="{% if '/leads' in request.path %}active{% endif %}">Leads</a>
+</nav>
+</div>
+</header>
+<div class="nav-overlay" id="navOverlay" onclick="document.getElementById('mobileNav').classList.remove('open');this.style.display='none'"></div>
+<nav class="mobile-nav" id="mobileNav">
+<div class="mobile-nav-head">
+<h3>Vision Works</h3>
+<button class="close-btn" onclick="document.getElementById('mobileNav').classList.remove('open');document.getElementById('navOverlay').style.display='none'" aria-label="Close">&times;</button>
+</div>
+<a href="/business" class="{% if request.path == '/business' %}active{% endif %}">Dashboard</a>
+<a href="/business/quotes" class="{% if '/quotes' in request.path %}active{% endif %}">Quotes</a>
+<a href="/business/invoices" class="{% if '/invoices' in request.path %}active{% endif %}">Invoices</a>
+<a href="/business/hours" class="{% if '/hours' in request.path %}active{% endif %}">Hours</a>
+<a href="/business/expenses" class="{% if '/expenses' in request.path %}active{% endif %}">Expenses</a>
+<a href="/business/clients" class="{% if '/clients' in request.path %}active{% endif %}">Customers</a>
 <a href="/business/rates" class="{% if '/rates' in request.path %}active{% endif %}">Rates</a>
 <a href="/business/leads" class="{% if '/leads' in request.path %}active{% endif %}">Leads</a>
 <a href="/business/social" class="{% if '/social' in request.path %}active{% endif %}">Social</a>
-</div>
-</div>
-</div>
+</nav>
 <div class="main">
 {% block content %}{% endblock %}
 </div>

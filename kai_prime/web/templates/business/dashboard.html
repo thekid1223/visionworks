@@ -2,18 +2,24 @@
 {% block title %}Dashboard — Vision Works{% endblock %}
 {% block content %}
 <div class="page-header"><h2>Dashboard</h2></div>
+<div class="quick-actions">
+<a class="qa-btn" href="/business/quotes/new"><span class="ic">&#128209;</span> New Quote</a>
+<a class="qa-btn" href="/business/invoices/new"><span class="ic">&#128179;</span> New Invoice</a>
+<a class="qa-btn" href="/business/hours"><span class="ic">&#9200;</span> Log Hours</a>
+<a class="qa-btn" href="/business/expenses"><span class="ic">&#128176;</span> Add Expense</a>
+</div>
 <div class="cards">
 <div class="card"><h3>Outstanding</h3><div class="val red">${{ "%.2f"|format(data.outstanding) }}</div></div>
 <div class="card"><h3>Paid (30d)</h3><div class="val green">${{ "%.2f"|format(data.paid_30d) }}</div></div>
-<div class="card"><h3>Expenses (30d)</h3><div class="val gold">${{ "%.2f"|format(data.expenses_30d) }}</div></div>
+<div class="card"><h3>Expenses (30d)</h3><div class="val">${{ "%.2f"|format(data.expenses_30d) }}</div></div>
 <div class="card"><h3>Net (30d)</h3><div class="val blue">${{ "%.2f"|format(data.net_30d) }}</div></div>
 <div class="card"><h3>Hours (30d)</h3><div class="val purple">{{ "%.1f"|format(data.hours_30d) }}</div></div>
 <div class="card"><h3>Active Jobs</h3><div class="val blue">{{ data.active_jobs }}</div></div>
-<div class="card"><h3>Clients</h3><div class="val green">{{ data.total_clients }}</div></div>
+<div class="card"><h3>Customers</h3><div class="val green">{{ data.total_clients }}</div></div>
 </div>
 <div class="metric-row">
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Expense Categories (30d)</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:.75rem">Expense Categories (30d)</h3>
 {% set max_expense = data.expense_categories[0].total if data.expense_categories else 1 %}
 {% for c in data.expense_categories %}
 <div class="cat-bar">
@@ -26,8 +32,9 @@
 {% endfor %}
 </div>
 <div class="card">
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Recent Quotes</h3>
-<div class="table-wrap">
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:.75rem">Recent Quotes</h3>
+<div class="table-wrap" style="box-shadow:none;margin-bottom:0">
+<div class="table-scroll">
 <table>
 <tr><th>#</th><th>Client</th><th>Total</th><th>Status</th></tr>
 {% for q in data.recent_quotes %}
@@ -35,7 +42,7 @@
 <td><a href="/business/quotes/{{q.id}}">{{q.quote_number or '#'~q.id}}</a></td>
 <td>{{q.client_name}}</td>
 <td>${{ "%.2f"|format(q.total) }}</td>
-<td><span class="badge {{'green' if q.status=='approved' else 'yellow' if q.status=='sent' else 'purple' if q.status=='draft' else 'blue'}}">{{q.status}}</span></td>
+<td><span class="badge {{'green' if q.status=='approved' else 'yellow' if q.status=='sent' else 'gray'}}">{{q.status}}</span></td>
 </tr>
 {% else %}
 <tr><td colspan="4">No quotes yet</td></tr>
@@ -44,8 +51,10 @@
 </div>
 </div>
 </div>
-<h3 style="color:var(--accent);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Recent Invoices</h3>
+</div>
+<h3 style="font-size:.95rem;margin-bottom:.75rem;color:var(--text)">Recent Invoices</h3>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
 <tr><th>Invoice</th><th>Client</th><th>Total</th><th>Status</th><th>Date</th></tr>
 {% for inv in data.recent_invoices %}
@@ -60,5 +69,6 @@
 <tr><td colspan="5">No invoices yet</td></tr>
 {% endfor %}
 </table>
+</div>
 </div>
 {% endblock %}

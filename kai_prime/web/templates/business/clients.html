@@ -1,28 +1,29 @@
 {% extends "business/base.html" %}
-{% block title %}Clients — Vision Works{% endblock %}
+{% block title %}Customers — Vision Works{% endblock %}
 {% block content %}
-<div class="page-header"><h2>Clients</h2><a class="btn btn-primary" href="/business/clients/add">+ Add Client</a></div>
+<div class="page-header"><h2>Customers</h2><a class="btn btn-primary" href="/business/clients/add">+ Add Customer</a></div>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
-<tr><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th></th></tr>
+<tr><th>Name</th><th>Phone</th><th>Email</th><th></th></tr>
 {% for c in clients %}
 <tr>
-<td>{{c.name}}</td>
+<td><strong>{{c.name}}</strong><br><span class="muted">{{c.address or ''}}</span></td>
 <td>{{c.phone or ''}}</td>
 <td>{{c.email or ''}}</td>
-<td><small style="color:var(--text-dim)">{{c.address or ''}}</small></td>
 <td>
-<div class="btn-group" style="margin:0">
+<div class="btn-group" style="margin:0;flex-wrap:nowrap">
 <a class="btn btn-secondary btn-sm" href="/business/quotes/new?client_id={{c.id}}">Quote</a>
-<form method="POST" action="/business/clients/{{c.id}}/delete" onsubmit="return confirm('Delete this client?')" style="display:inline">
+<form method="POST" action="/business/clients/{{c.id}}/delete" onsubmit="return confirm('Delete this customer?')" style="display:inline">
 <button class="btn btn-danger btn-sm">Delete</button>
 </form>
 </div>
 </td>
 </tr>
 {% else %}
-<tr><td colspan="5">No clients yet</td></tr>
+<tr><td colspan="4">No customers yet</td></tr>
 {% endfor %}
 </table>
+</div>
 </div>
 {% endblock %}

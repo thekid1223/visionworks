@@ -1,11 +1,12 @@
 {% extends "business/base.html" %}
 {% block title %}Quote {{q.quote_number or '#'~q.id}} — Vision Works{% endblock %}
 {% block content %}
-<div class="page-header"><h2>{{q.quote_number or 'Quote #'~q.id}} <small>Status: <span class="badge {{'green' if q.status=='approved' else 'yellow' if q.status=='sent' else 'gray'}}">{{q.status}}</span></small></h2></div>
-<div style="color:var(--text-muted);margin-bottom:1.5rem;font-size:.9rem">
-<strong>Client:</strong> {{q.client_name}} &nbsp;|&nbsp; <strong>Date:</strong> {{q.date[:10]}}
+<div class="page-header"><h2>{{q.quote_number or 'Quote #'~q.id}}<small>Status: <span class="badge {{'green' if q.status=='approved' else 'yellow' if q.status=='sent' else 'gray'}}">{{q.status}}</span></small></h2></div>
+<div style="color:var(--text-muted);margin-bottom:1.25rem;font-size:.92rem">
+<strong>Customer:</strong> {{q.client_name}} &nbsp;|&nbsp; <strong>Date:</strong> {{q.date[:10]}}
 </div>
 <div class="table-wrap">
+<div class="table-scroll">
 <table>
 <tr><th>#</th><th>Description</th><th>Type</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Total</th></tr>
 {% for item in q.items %}
@@ -19,14 +20,15 @@
 <td>${{"%.2f"|format(item.total)}}</td>
 </tr>
 {% endfor %}
-<tr style="color:var(--text-muted);font-size:.9rem"><td colspan="6">Subtotal</td><td>${{"%.2f"|format(q.subtotal)}}</td></tr>
+<tr class="muted-row"><td colspan="6">Subtotal</td><td>${{"%.2f"|format(q.subtotal)}}</td></tr>
 {% if q.tax_rate > 0 %}
-<tr style="color:var(--accent);font-size:.9rem"><td colspan="6">Tax ({{q.tax_rate}}%)</td><td>${{"%.2f"|format(q.tax_amount)}}</td></tr>
+<tr class="accent-row"><td colspan="6">Tax ({{q.tax_rate}}%)</td><td>${{"%.2f"|format(q.tax_amount)}}</td></tr>
 {% endif %}
-<tr style="border-top:2px solid var(--accent);font-weight:700;font-size:1.05rem"><td colspan="6">Total</td><td>${{"%.2f"|format(q.total)}}</td></tr>
+<tr class="totals-row"><td colspan="6">Total</td><td>${{"%.2f"|format(q.total)}}</td></tr>
 </table>
 </div>
-{% if q.notes %}<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;white-space:pre-wrap">{{q.notes}}</div>{% endif %}
+</div>
+{% if q.notes %}<div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.25rem;white-space:pre-wrap">{{q.notes}}</div>{% endif %}
 <div class="btn-group">
 <a class="btn btn-primary" href="#" onclick="window.print()">Print / PDF</a>
 <a class="btn btn-secondary" href="/business/quotes">Back</a>

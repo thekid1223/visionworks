@@ -1,9 +1,9 @@
 {% extends "business/base.html" %}
-{% block title %}Social & Marketing — Vision Works{% endblock %}
+{% block title %}Social — Vision Works{% endblock %}
 {% block content %}
 <div class="page-header"><h2>Social & Marketing <small>Link your Facebook and HomeAdvisor profiles</small></h2></div>
-<div class="social-card">
-<h3>Social Links</h3>
+<div class="form-card">
+<h3 style="font-size:.9rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:1rem">Social Links</h3>
 <form method="POST">
 <div class="form-group"><label>Facebook Page URL</label><input name="facebook_url" value="{{company.facebook_url or ''}}" placeholder="https://facebook.com/yourpage"></div>
 <div class="form-group"><label>HomeAdvisor Profile URL</label><input name="homeadvisor_url" value="{{company.homeadvisor_url or ''}}" placeholder="https://homeadvisor.com/yourprofile"></div>
@@ -11,24 +11,24 @@
 </form>
 </div>
 {% if company.facebook_url or company.homeadvisor_url %}
-<h3 style="color:var(--accent);font-size:.85rem;margin:1.5rem 0 .75rem;text-transform:uppercase;letter-spacing:.05em">Quick Links</h3>
+<h3 style="font-size:.85rem;text-transform:none;letter-spacing:0;color:var(--primary);margin:1.5rem 0 .75rem">Quick Links</h3>
 {% if company.facebook_url %}
-<div class="social-card" style="display:flex;align-items:center;justify-content:space-between">
+<div class="card" style="display:flex;align-items:center;justify-content:space-between">
 <div><strong>Facebook</strong><br><span style="color:var(--text-dim);font-size:.85rem">{{company.facebook_url}}</span></div>
 <a class="btn btn-secondary btn-sm" href="{{company.facebook_url}}" target="_blank">Open</a>
 </div>
 {% endif %}
 {% if company.homeadvisor_url %}
-<div class="social-card" style="display:flex;align-items:center;justify-content:space-between">
+<div class="card" style="display:flex;align-items:center;justify-content:space-between">
 <div><strong>HomeAdvisor</strong><br><span style="color:var(--text-dim);font-size:.85rem">{{company.homeadvisor_url}}</span></div>
 <a class="btn btn-secondary btn-sm" href="{{company.homeadvisor_url}}" target="_blank">Open</a>
 </div>
 {% endif %}
 {% endif %}
-<div class="social-card" style="margin-top:1.5rem">
-<h3>Lead Capture Page</h3>
+<div class="card" style="margin-top:1.5rem">
+<h3 style="font-size:.9rem;text-transform:none;letter-spacing:0;color:var(--primary);margin-bottom:.5rem">Lead Capture Page</h3>
 <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:.5rem">Share this link on Facebook, your website, or flyers to collect leads:</p>
-<a href="/business/lead-capture" target="_blank" style="color:var(--accent);font-weight:700;font-size:1.05rem">https://visionworks.onrender.com/business/lead-capture</a>
+<a href="/business/lead-capture" target="_blank" style="color:var(--primary);font-weight:700;font-size:1.05rem">https://visionworks.onrender.com/business/lead-capture</a>
 <p style="color:var(--text-dim);font-size:.8rem;margin-top:.5rem">Customers fill out their info and it's saved in your Leads tab.</p>
 </div>
 {% endblock %}
