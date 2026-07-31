@@ -200,6 +200,10 @@ class ProviderChain:
         return [p["name"] for p in self._providers if p.get("api_key") or p["name"] == "ollama"]
 
     @property
+    def has_cloud_provider(self) -> bool:
+        return any(p.get("api_key") for p in self._providers if p["name"] != "ollama")
+
+    @property
     def provider(self) -> str:
         return self._providers[0]["name"] if self._providers else "offline"
 

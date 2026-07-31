@@ -562,8 +562,12 @@ Return valid JSON ONLY, no other text."""
                 chain = ProviderChain(WORKSPACE)
             except Exception:
                 chain = None
-        if chain is None or not chain.available_providers:
-            return None, "AI service is not set up yet. Add a GROQ_API_KEY or DeepSeek key."
+        if chain is None:
+            return None, "AI service is not available right now."
+        if not chain.has_cloud_provider:
+            return None, ("AI isn't set up on the server yet. Add an Environment variable GROQ_API_KEY "
+                          "(your Groq API key) in Render, then Deploy Latest Commit. "
+                          "For now, use + New Quote to build one by hand.")
 
         messages = [
             {"role": "system", "content": "You are an expert construction estimator for Vision Works General Contracting in Poplar Bluff, MO. Always respond with valid JSON only — never use markdown, never add commentary. Produce a JSON array of line items."},
@@ -584,7 +588,9 @@ Return valid JSON ONLY, no other text."""
                 resp = None
             items = self._parse_estimate(resp)
         if not items:
-            return None, "Could not build the line items from the AI response — please try again."
+            if not resp:
+                return None, "AI didn't respond — the service may be busy. Please try again in a minute."
+            return None, "The AI answer couldn't be turned into line items. Try a more detailed description, or build the quote by hand with + New Quote."
         return items, None
 
     def _parse_estimate(self, text):
