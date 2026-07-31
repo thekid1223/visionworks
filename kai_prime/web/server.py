@@ -806,8 +806,12 @@ def business_quote_new():
                     "total": round(qty * rate, 2)
                 })
         tax_rate = float(request.form.get("tax_rate", 0))
-        b.create_quote(client_id, items=items, notes=request.form.get("notes",""), tax_rate=tax_rate)
-        return _redirect("/business/quotes")
+        phone = request.form.get("phone", "").strip()
+        email = request.form.get("email", "").strip()
+        new_id = b.create_quote(client_id, items=items, notes=request.form.get("notes",""), tax_rate=tax_rate)
+        if phone or email:
+            b.update_client_contact(client_id, phone, email)
+        return _redirect(f"/business/quotes/{new_id}")
     clients = b.get_clients()
     rates = b.get_local_rates()
     return render_template("business/quote_form.html", clients=clients, rates=rates)
@@ -858,14 +862,32 @@ def business_quote_save_estimate():
                 "total": round(qty * rate, 2)
             })
     tax_rate = float(request.form.get("tax_rate", 0))
-    b.create_quote(client_id, items=items, notes=request.form.get("notes",""), tax_rate=tax_rate)
-    return _redirect("/business/quotes")
+    phone = request.form.get("phone", "").strip()
+    email = request.form.get("email", "").strip()
+    new_id = b.create_quote(client_id, items=items, notes=request.form.get("notes",""), tax_rate=tax_rate)
+    if phone or email:
+        b.update_client_contact(client_id, phone, email)
+    return _redirect(f"/business/quotes/{new_id}")
 
 @app.route("/business/quotes/<int:qid>")
 def business_quote_view(qid):
     b = _get_biz()
     q = b.get_quote(qid)
     return render_template("business/quote_view.html", q=q) if q else ("Not found", 404)
+
+@app.route("/business/quotes/<int:qid>/contact", methods=["POST"])
+def business_quote_contact(qid):
+    b = _get_biz()
+    q = b.get_quote(qid)
+    if q:
+        b.update_client_contact(q["client_id"], request.form.get("phone", "").strip(),
+                                request.form.get("email", "").strip())
+    return _redirect(f"/business/quotes/{qid}")
+
+@app.route("/business/quotes/<int:qid>/sent", methods=["POST"])
+def business_quote_sent(qid):
+    _get_biz().update_quote_status(qid, "sent")
+    return ("ok", 200)
 
 @app.route("/business/quotes/<int:qid>/invoice", methods=["POST"])
 def business_quote_to_invoice(qid):

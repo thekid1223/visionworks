@@ -9,7 +9,7 @@
 <div class="table-scroll">
 <table>
 <tr><th>#</th><th>Description</th><th>Type</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Total</th></tr>
-{% for item in q.items %}
+{% for item in q["items"] %}
 <tr>
 <td>{{loop.index}}</td>
 <td>{{item.desc}}</td>
@@ -29,8 +29,72 @@
 </div>
 </div>
 {% if q.notes %}<div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.25rem;white-space:pre-wrap">{{q.notes}}</div>{% endif %}
+<div class="form-card" style="margin-bottom:1.25rem">
+<h3 style="margin-top:0">Send to Customer</h3>
+<p style="color:var(--text-muted);margin:0 0 .75rem">
+{% if q.client_phone or q.client_email %}
+Phone: {{q.client_phone or '—'}} &nbsp;|&nbsp; Email: {{q.client_email or '—'}}
+{% else %}
+No phone or email on file for {{q.client_name}} yet — add one below:
+{% endif %}
+</p>
+<form method="POST" action="/business/quotes/{{q.id}}/contact" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+<input name="phone" placeholder="Phone" value="{{q.client_phone or ''}}" style="flex:1;min-width:150px">
+<input name="email" placeholder="Email" value="{{q.client_email or ''}}" style="flex:1;min-width:150px">
+<button class="btn btn-secondary btn-sm">Save Contact</button>
+</form>
+<div class="btn-group">
+<button class="btn btn-primary" onclick="sendQuote('email')">Email Quote</button>
+<button class="btn btn-primary" onclick="sendQuote('sms')">Text Quote</button>
+</div>
+<p class="hint">Opens your email or text app with the quote filled in — just press send.</p>
+</div>
 <div class="btn-group">
 <a class="btn btn-primary" href="#" onclick="window.print()">Print / PDF</a>
 <a class="btn btn-secondary" href="/business/quotes">Back</a>
 </div>
+<script>
+var Q = {
+  company: {{ ("Vision Works General Contracting") | tojson }},
+  number: {{ (q.quote_number or ('#' ~ q.id)) | tojson }},
+  client: {{ q.client_name | tojson }},
+  phone: {{ (q.client_phone or '') | tojson }},
+  email: {{ (q.client_email or '') | tojson }},
+  date: {{ q.date[:10] | tojson }},
+  subtotal: {{ '%.2f'|format(q.subtotal) }},
+  taxRate: {{ q.tax_rate }},
+  tax: {{ q.tax_amount }},
+  total: {{ '%.2f'|format(q.total) }},
+  notes: {{ (q.notes or '') | tojson }},
+  items: {{ q["items"] | tojson }}
+};
+function fmt(n){return '$'+parseFloat(n).toFixed(2)}
+function quoteText(){
+  var l=[Q.company, Q.client+' — '+Q.number+' ('+Q.date+')', ''];
+  Q.items.forEach(function(it,i){l.push((i+1)+'. '+it.desc+' — '+it.qty+' '+(it.unit||'')+' @ '+fmt(it.rate)+' = '+fmt(it.total))});
+  l.push('', 'Subtotal: '+fmt(Q.subtotal));
+  if(parseFloat(Q.taxRate)>0){l.push('Tax ('+Q.taxRate+'%): '+fmt(Q.tax))}
+  l.push('Total: '+fmt(Q.total));
+  if(Q.notes){l.push('', 'Notes: '+Q.notes)}
+  return l.join('\n');
+}
+function quoteShort(){
+  var l=[Q.client+', here is your quote from '+Q.company+' (# '+Q.number+'): '+fmt(Q.total)+'.'];
+  Q.items.slice(0,4).forEach(function(it){l.push(' - '+it.desc+': '+fmt(it.total))});
+  l.push('Questions? Just reply to this text.');
+  return l.join('\n');
+}
+function markSent(){fetch('/business/quotes/{{q.id}}/sent',{method:'POST'})}
+function sendQuote(kind){
+  var isEmail = kind==='email';
+  var contact = isEmail ? Q.email : (Q.phone||'').replace(/[^\d]/g,'');
+  if(!contact){alert((isEmail?'No email address':'No phone number')+' on file — enter it above and tap Save Contact first.');return}
+  markSent();
+  if(isEmail){
+    window.location.href='mailto:'+encodeURIComponent(contact)+'?subject='+encodeURIComponent('Quote from '+Q.company)+'&body='+encodeURIComponent(quoteText());
+  }else{
+    window.location.href='sms:'+contact+'?body='+encodeURIComponent(quoteShort());
+  }
+}
+</script>
 {% endblock %}

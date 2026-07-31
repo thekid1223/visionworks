@@ -317,12 +317,15 @@ class BusinessManager:
                           JOIN clients c ON q.client_id=c.id ORDER BY q.date DESC""")
 
     def get_quote(self, qid):
-        r = self._run("""SELECT q.*, c.name AS client_name FROM quotes q
-                       JOIN clients c ON q.client_id=c.id WHERE q.id=?""", (qid,))
+        r = self._run("""SELECT q.*, c.name AS client_name, c.phone AS client_phone, c.email AS client_email
+                       FROM quotes q JOIN clients c ON q.client_id=c.id WHERE q.id=?""", (qid,))
         if r:
             r[0]["items"] = json.loads(r[0]["items"])
             return r[0]
         return None
+
+    def update_client_contact(self, cid, phone, email):
+        self._run("UPDATE clients SET phone=?, email=? WHERE id=?", (phone, email, cid))
 
     def update_quote_status(self, qid, status):
         self._run("UPDATE quotes SET status=? WHERE id=?", (status, qid))

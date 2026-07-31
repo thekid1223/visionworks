@@ -7,6 +7,10 @@
 <input type="hidden" name="client_name" value="{{client_name}}">
 <input type="hidden" name="tax_rate" value="{{tax_rate}}">
 <div class="form-group"><label>Customer: <strong style="color:var(--text)">{{client_name}}</strong></label></div>
+<div class="row">
+<div class="form-group col"><label>Customer Phone <small class="hint">optional — for texting the quote</small></label><input name="phone" placeholder="e.g. 573-555-1234"></div>
+<div class="form-group col"><label>Customer Email <small class="hint">optional — for emailing the quote</small></label><input name="email" placeholder="e.g. john@example.com"></div>
+</div>
 <div class="form-group">
 <label>Line Items</label>
 <button type="button" class="btn btn-secondary btn-sm" onclick="addLine()" style="margin-top:.3rem">+ Add Line</button>

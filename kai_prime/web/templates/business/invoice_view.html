@@ -12,7 +12,7 @@
 <div class="table-scroll">
 <table>
 <tr><th>#</th><th>Description</th><th>Type</th><th>Qty</th><th>Unit</th><th>Rate</th><th>Total</th></tr>
-{% for item in inv.items %}
+{% for item in inv["items"] %}
 <tr>
 <td>{{loop.index}}</td>
 <td>{{item.desc}}</td>
