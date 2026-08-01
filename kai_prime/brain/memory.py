@@ -102,7 +102,7 @@ class Memory:
                 prefix = "User" if m["role"] == "user" else "Kai"
                 lines.append(f"{prefix}: {m['content'][:200]}")
             old = self.summary + "\n" if self.summary else ""
-            self.summary = summarize_fn(old + "\n".join(lines))
+            self.summary = (summarize_fn(old + "\n".join(lines)) or "")[:4000]
             self._save()
             return True
 
@@ -155,12 +155,38 @@ class Memory:
 
 
 class EntityMemory:
-    """Simple key-value store for user facts extracted from conversation."""
-    def __init__(self):
-        self._path = MEMORY_DIR / "entities.json"
+    """Key-value store for user facts, with per-key value history for disambiguation."""
+    def __init__(self, path: Path | None = None):
+        self._path = path or MEMORY_DIR / "entities.json"
         self._lock = threading.Lock()
-        self.entities: dict[str, str] = {}
+        self._entities: dict[str, list[dict]] = {}
         self._load()
+
+    def set(self, key: str, value: str):
+        with self._lock:
+            value = (value or "").strip()
+            if not value:
+                return
+            hist = self._entities.get(key, [])
+            for i, rec in enumerate(hist):
+                if rec["value"].lower() == value.lower():
+                    rec["count"] += 1
+                    rec["ts"] = time.time()
+                    if i > 0:
+                        hist.pop(i)
+                        hist.insert(0, rec)
+                    self._save()
+                    return
+            hist.insert(0, {"value": value, "ts": time.time(), "count": 1})
+            self._entities[key] = hist[:10]
+            self._save()
+
+    def get(self, key: str) -> str:
+        hist = self._entities.get(key) or []
+        return hist[0]["value"] if hist else ""
+
+    def get_history(self, key: str) -> list[dict]:
+        return list(self._entities.get(key) or [])
 
     def extract_and_store(self, text: str):
         import re
@@ -169,34 +195,58 @@ class EntityMemory:
             "project": r"(?:working on|building|coding|project)\s+(.{5,50})",
             "preference": r"(?:i prefer|i like|i want|i need)\s+(.{3,80})",
         }
-        with self._lock:
-            for key, pat in patterns.items():
-                m = re.search(pat, text, re.IGNORECASE)
-                if m:
-                    val = m.group(1).strip().rstrip(".,;:!?")
-                    if len(val) > 3 and val.lower() not in ("just", "really", "going", "trying", "looking"):
-                        self.entities[key] = val
-            self._save()
+        for key, pat in patterns.items():
+            m = re.search(pat, text, re.IGNORECASE)
+            if m:
+                val = m.group(1).strip().rstrip(".,;:!?")
+                if len(val) > 3 and val.lower() not in ("just", "really", "going", "trying", "looking"):
+                    self.set(key, val)
 
     def get_all(self) -> dict[str, str]:
         with self._lock:
-            return dict(self.entities)
+            return {k: (v[0]["value"] if v else "") for k, v in self._entities.items()}
 
     def get_context_string(self) -> str:
         with self._lock:
-            if not self.entities:
+            if not self._entities:
                 return ""
-            return "\n".join(f"- {k}: {v}" for k, v in self.entities.items())
+            lines = []
+            for key, hist in self._entities.items():
+                if not hist:
+                    continue
+                current = hist[0]["value"]
+                distinct = {r["value"].lower() for r in hist}
+                if len(distinct) > 1:
+                    others = []
+                    seen = set()
+                    for r in hist:
+                        low = r["value"].lower()
+                        if low != current.lower() and low not in seen:
+                            seen.add(low)
+                            others.append(r["value"])
+                    lines.append(f"- {key}: {current} (also known as: {', '.join(others)} — ask which is correct)")
+                else:
+                    lines.append(f"- {key}: {current}")
+            return "\n".join(lines)
 
     def _save(self):
         try:
-            self._path.write_text(json.dumps(self.entities, indent=2), encoding="utf-8")
+            self._path.write_text(json.dumps(self._entities, indent=2, default=str), encoding="utf-8")
         except Exception as e:
             log.warning("Failed to save entities: %s", e)
 
     def _load(self):
         try:
             if self._path.exists():
-                self.entities = json.loads(self._path.read_text(encoding="utf-8"))
+                data = json.loads(self._path.read_text(encoding="utf-8"))
+                migrated = {}
+                for k, v in data.items():
+                    if isinstance(v, list):
+                        migrated[k] = v
+                    elif isinstance(v, str):
+                        migrated[k] = [{"value": v, "ts": time.time(), "count": 1}]
+                    else:
+                        migrated[k] = []
+                self._entities = migrated
         except Exception as e:
             log.warning("Failed to load entities: %s", e)

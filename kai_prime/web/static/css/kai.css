@@ -232,6 +232,39 @@ body {
   font-family: var(--font-mono);
 }
 
+.feedback-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.feedback-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 8px;
+  line-height: 1.4;
+}
+
+.feedback-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.feedback-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.msg.feedback-given .feedback-btn {
+  opacity: 0.5;
+}
+
 .system-msg {
   text-align: center;
   color: var(--text-dim);

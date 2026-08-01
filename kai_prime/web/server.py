@@ -85,6 +85,20 @@ def api_ask():
         stream.error(str(e)[:200])
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/feedback", methods=["POST"])
+def api_feedback():
+    _init()
+    data = request.json or {}
+    rating = data.get("rating", "").strip().lower()
+    message = data.get("message", "").strip()
+    response = data.get("response", "").strip()
+    if rating not in ("up", "down"):
+        return jsonify({"error": "rating must be 'up' or 'down'"}), 400
+    ok = brain.record_feedback(rating, message, response) if brain else False
+    if not ok:
+        return jsonify({"error": "Failed to record feedback"}), 500
+    return jsonify({"ok": True})
+
 @app.route("/api/stream")
 def api_stream():
     def generate():

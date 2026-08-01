@@ -14,6 +14,7 @@ _HALLUCINATION_PAT = re.compile(
     r'restored|backed\s+up)\b',
     re.IGNORECASE
 )
+MAX_TOOL_CALLS = 3
 from kai_prime.brain.memory import Memory, EntityMemory
 from kai_prime.brain.emotion import EmotionEngine
 from kai_prime.brain.personality import Personality
@@ -76,6 +77,7 @@ class KaiBrain:
         self._lock = threading.Lock()
         self._failed_tool_attempts = set()
         self._tool_was_called = False
+        self._last_tool_results: list[tuple] = []
         self._provider_chain = None
         self._knowledge = None
         self._init_provider_chain()
@@ -178,11 +180,11 @@ class KaiBrain:
             try:
                 def _summarize_fn(text):
                     if not self._provider_chain:
-                        return text[:200]
+                        return text[:4000]
                     return self._provider_chain.chat([
-                        {"role": "system", "content": "Summarize this conversation in 1-2 sentences. Keep key facts, preferences, and decisions."},
-                        {"role": "user", "content": text[:2000]}
-                    ], temperature=0.3, max_tokens=200) or text[:200]
+                        {"role": "system", "content": "Merge the EXISTING summary with the NEW messages into ONE summary. Preserve every key fact, preference, decision, and relationship detail. Do not repeat facts already in the existing summary. Output only the merged summary, max ~4000 characters."},
+                        {"role": "user", "content": text[:4000]}
+                    ], temperature=0.3, max_tokens=500) or text[:4000]
                 if self.memory.compress(_summarize_fn):
                     log.info("Memory compressed")
             except Exception:
@@ -479,10 +481,14 @@ class KaiBrain:
                     return simple
 
                 response = self._generate_response(user_input, user_emotion, intensity)
-                response = polish(response, user_input)
-                if detect_repetition(response):
-                    response = self._generate_response(user_input + " (give a different answer)", user_emotion, intensity)
+                response = self._strip_unverified_claims(response)
+                structured = self._tool_was_called and self._looks_like_structured(response)
+                if not structured:
                     response = polish(response, user_input)
+                    if detect_repetition(response):
+                        response = self._generate_response(user_input + " (give a different answer)", user_emotion, intensity)
+                        response = self._strip_unverified_claims(response)
+                        response = polish(response, user_input)
                 if self._supervisor and self._supervisor.active:
                     resp_review = self._supervisor.review("response", {"text": response, "tool_was_called": self._tool_was_called})
                     if not resp_review["ok"]:
@@ -492,7 +498,8 @@ class KaiBrain:
                             log.info("Hallucinated claims found: %s", set(claims))
                             if self._healer:
                                 self._healer.record("hallucination", str(claims)[:200], context={"input": user_input[:200]})
-                            response += "\n\n(I misspoke — I didn't do that. I don't have the ability to perform actions on your system unless I use a tool.)"
+                            if "(I misspoke" not in response:
+                                response += "\n\n(I misspoke — I didn't do that. I don't have the ability to perform actions on your system unless I use a tool.)"
                         elif "error" in reason.lower() or "leaked" in reason.lower():
                             response = self._rephrase_error(response)
                         elif "censorship" in reason.lower():
@@ -514,7 +521,7 @@ class KaiBrain:
                 self.emotion.process_event("task_completed")
                 self.personality.observe_pattern("acknowledgment_first")
                 self.personality.observe_pattern("brief_response" if len(response) < 150 else "technical_detail")
-                if self.personality.should_use_inner_voice() and self.inner_voice:
+                if not structured and self.personality.should_use_inner_voice() and self.inner_voice:
                     thought = self.inner_voice.think({"user_input": user_input, "response": response})
                     if thought and thought.content and len(response) < 500:
                         response = response.rstrip() + "\n\n*" + thought.content + "*"
@@ -596,14 +603,6 @@ class KaiBrain:
     def _generate_response(self, user_input: str, user_emotion: str = "neutral", intensity: float = 0.0) -> str:
         self._tool_was_called = False
         system_prompt = self.personality.build_system_prompt()
-        lower_input = user_input.lower().strip()
-        is_action_request = any(w in lower_input for w in [
-            "open", "run", "scan", "search", "read", "write", "list", "click", "type",
-            "screenshot", "webcam", "ocr", "reminder", "task", "email", "check",
-            "exploit", "browse", "kill", "send", "execute", "start", "stop", "install",
-            "chess", "analyze", "game", "board", "move", "play", "watch", "notify",
-            "notification", "alert", "pop", "see", "look", "describe", "what.*screen",
-        ])
 
         recall = self.memory.get_recall_context(user_input)
 
@@ -611,26 +610,28 @@ class KaiBrain:
         if entity_ctx:
             system_prompt += f"\n\n{entity_ctx}"
 
-        if is_action_request:
-            tool_descs = "\n".join(f"- {t['name']}: {t['description']}" for t in self._tool_descriptions)
-            system_prompt += f"\n\nAvailable tools (respond with JSON to call a tool): {tool_descs}"
-            system_prompt += "\n\nTo use a tool, respond with ONLY: {\"tool\": \"tool_name\", \"args\": {\"param\": \"value\"}}"
-            system_prompt += "\n- Only call ONE tool per response"
-            system_prompt += "\n- If a tool fails, try with different arguments"
-            recent_failures = self.memory.recent_failures()
-            if recent_failures:
-                fail_text = "\n".join(f"- {f}" for f in recent_failures[-2:])
-                system_prompt += f"\n\n[RECENT FAILURES]:\n{fail_text}"
-        else:
-            mood_mods = self.emotion.get_response_modifiers()
-            if mood_mods:
-                system_prompt += "\n\nCurrent emotional state:\n" + "\n".join(mood_mods)
-            memory_context = self.semantic_memory.build_context_for_prompt(user_input, max_facts=5)
-            if memory_context:
-                system_prompt += f"\n\n{memory_context}"
-            relationship_context = self.relationship.get_context_string()
-            if relationship_context:
-                system_prompt += f"\n\n{relationship_context}"
+        mood_mods = self.emotion.get_response_modifiers()
+        if mood_mods:
+            system_prompt += "\n\nCurrent emotional state:\n" + "\n".join(mood_mods)
+        memory_context = self.semantic_memory.build_context_for_prompt(user_input, max_facts=5)
+        if memory_context:
+            system_prompt += f"\n\n{memory_context}"
+        relationship_context = self.relationship.get_context_string()
+        if relationship_context:
+            system_prompt += f"\n\n{relationship_context}"
+
+        tool_descs = "\n".join(f"- {t['name']}: {t['description']}" for t in self._tool_descriptions)
+        system_prompt += f"\n\nYou have these tools available (call one by emitting its JSON): {tool_descs}"
+        system_prompt += "\n\nTo call a tool, output ONLY this and nothing else: {\"tool\": \"tool_name\", \"args\": {\"param\": \"value\"}}"
+        system_prompt += "\n- You may call up to 3 tools in one response — put each call as its own JSON object, one per line."
+        system_prompt += "\n- If a tool fails, try again with different arguments."
+        system_prompt += "\n- If the user is just chatting, asking a question you can answer directly, or you don't need a tool, answer normally in plain text (do NOT output JSON)."
+        system_prompt += "\n- Prefer the smallest number of tools needed to get the job done."
+
+        recent_failures = self.memory.recent_failures()
+        if recent_failures:
+            fail_text = "\n".join(f"- {f}" for f in recent_failures[-2:])
+            system_prompt += f"\n\n[RECENT FAILURES]:\n{fail_text}"
 
         if recall:
             system_prompt += f"\n\n{recall}"
@@ -651,52 +652,179 @@ class KaiBrain:
         messages.append({"role": "user", "content": user_input})
 
         for provider in LLM_PROVIDERS:
-            result = _call_llm(messages, provider, temperature=0.7, max_tokens=1024)
+            result = _call_llm(messages, provider, temperature=0.7, max_tokens=1500)
             if result:
-                tool_call = self._parse_tool_call(result)
-                if tool_call:
-                    tool_result = self._execute_tool_call(tool_call)
-                    if tool_result and any(err in str(tool_result).lower() for err in ["not recognized", "failed", "error", "not available", "not installed"]):
-                        tkey = f"{tool_call.get('tool', '')}:{json.dumps(tool_call.get('args', {}), sort_keys=True)}"
-                        self._failed_tool_attempts.add(tkey)
-                    follow_messages = messages + [
-                        {"role": "assistant", "content": result},
-                        {"role": "user", "content": f"Tool {tool_call.get('tool','')} returned:\n{str(tool_result)[:2000]}\n\nCRITICAL RULES:\n- You MUST base your response ONLY on the tool result above.\n- Do NOT invent, guess, or hallucinate any information not present in the tool result.\n- If the tool result doesn't contain useful information for the user's request, say so honestly.\n- For chess: OCR cannot read chess boards (pieces are images). If OCR returns UI text instead of board state, say 'I can see chess.com is open but I cannot read the board positions from a screenshot — OCR only sees text, not piece positions.'\n- Do NOT make up chess positions, moves, or game states."}
-                    ]
-                    follow = _call_llm(follow_messages, provider, temperature=0.7, max_tokens=1024)
-                    if follow:
-                        follow_call = self._parse_tool_call(follow)
-                        if follow_call:
-                            second_result = self._execute_tool_call(follow_call)
-                            result = f"{tool_result}\n\n{second_result}"
-                            self._try_compress()
-                            return result
-                        self._try_compress()
-                        return follow
-                    self._try_compress()
-                    return tool_result
+                tool_calls = self._parse_tool_calls(result)
+                if not tool_calls and self._looks_like_tool_json(result):
+                    retried = self._retry_strict_tool_json(messages, provider)
+                    if retried:
+                        result = retried
+                        tool_calls = self._parse_tool_calls(result)
+                if tool_calls:
+                    return self._handle_tool_calls(tool_calls, messages, provider)
                 self._try_compress()
                 return result
         return self._fallback_response(user_input)
 
-    def _parse_tool_call(self, text: str) -> dict | None:
+    def _handle_tool_calls(self, calls: list[dict], messages: list[dict], provider: dict, _depth: int = 0) -> str:
+        """Execute one or more tool calls, then produce the final user-facing response."""
+        tool_results = []
+        for call in calls[:MAX_TOOL_CALLS]:
+            tool_result = self._execute_tool_call(call)
+            if tool_result and any(err in str(tool_result).lower() for err in ["not recognized", "failed", "error", "not available", "not installed"]):
+                tkey = f"{call.get('tool', '')}:{json.dumps(call.get('args', {}), sort_keys=True)}"
+                self._failed_tool_attempts.add(tkey)
+            tool_results.append(f"Tool {call.get('tool', '')} returned:\n{str(tool_result)[:2000]}")
+        joined = "\n\n".join(tool_results)
+        follow_messages = messages + [
+            {"role": "assistant", "content": "\n".join(json.dumps(c) for c in calls[:MAX_TOOL_CALLS])},
+            {"role": "user", "content": joined + "\n\nCRITICAL RULES:\n- You MUST base your response ONLY on the tool results above.\n- Do NOT invent, guess, or hallucinate any information not present in the tool results.\n- If the tool results don't contain useful information for the user's request, say so honestly.\n- For chess: OCR cannot read chess boards (pieces are images). If OCR returns UI text instead of board state, say 'I can see chess.com is open but I cannot read the board positions from a screenshot — OCR only sees text, not piece positions.'\n- Do NOT make up chess positions, moves, or game states."}
+        ]
+        follow = _call_llm(follow_messages, provider, temperature=0.7, max_tokens=1500)
+        if follow:
+            extra_calls = self._parse_tool_calls(follow)
+            if extra_calls and _depth < 1:
+                return self._handle_tool_calls(extra_calls, messages, provider, _depth + 1)
+            self._try_compress()
+            return follow
+        self._try_compress()
+        return joined
+
+    def _strip_unverified_claims(self, response: str) -> str:
+        """Append an honest correction if the response claims actions with no tool result to back them."""
+        if not response or not isinstance(response, str):
+            return response
         try:
-            if '{"tool"' in text or '{"tool":' in text:
-                start = text.index('{')
-                depth = 0
-                for i in range(start, len(text)):
-                    if text[i] == '{': depth += 1
-                    elif text[i] == '}': depth -= 1
-                    if depth == 0:
-                        return json.loads(text[start:i+1])
+            matches = [m.group(0) for m in _HALLUCINATION_PAT.finditer(response)]
+            if not matches:
+                return response
+            if not self._tool_was_called:
+                if "(I misspoke" in response:
+                    return response
+                log.info("Unverified action claims flagged: %s", list(set(matches))[:5])
+                return response + ("\n\n(I misspoke — I didn't actually do that. I don't have the ability to perform "
+                                  "actions on your system unless I use a tool.)")
         except Exception:
             pass
-        return None
+        return response
+
+    def _looks_like_structured(self, text: str) -> bool:
+        t = (text or "").strip()
+        if not t:
+            return False
+        return t.startswith("{") or t.startswith("[")
+
+    def _iter_json_objects(self, text: str):
+        """Yield every dict that parses as a complete JSON object, in order."""
+        if not text:
+            return
+        idx = 0
+        n = len(text)
+        while idx < n:
+            start = text.find("{", idx)
+            if start == -1:
+                break
+            depth, in_str, escape, end = 0, False, False, -1
+            for i in range(start, n):
+                ch = text[i]
+                if in_str:
+                    if escape:
+                        escape = False
+                    elif ch == "\\":
+                        escape = True
+                    elif ch == '"':
+                        in_str = False
+                    continue
+                if ch == '"':
+                    in_str = True
+                elif ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        end = i
+                        break
+            if end == -1:
+                break
+            try:
+                obj = json.loads(text[start:end + 1])
+                if isinstance(obj, dict):
+                    yield obj
+            except Exception:
+                pass
+            idx = end + 1
+
+    def _normalize_tool_call(self, obj: dict) -> dict | None:
+        if "tool_call" in obj and isinstance(obj["tool_call"], dict):
+            obj = obj["tool_call"]
+        if not isinstance(obj.get("tool"), str) or not obj["tool"]:
+            return None
+        args = obj.get("args", {})
+        if isinstance(args, str):
+            try:
+                args = json.loads(args)
+            except Exception:
+                args = {}
+        if not isinstance(args, dict):
+            args = {}
+        return {"tool": obj["tool"], "args": args}
+
+    def _parse_tool_call(self, text: str) -> dict | None:
+        """Extract a single valid tool call from raw model text."""
+        try:
+            if not text:
+                return None
+            cleaned = text.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned).strip()
+            for obj in self._iter_json_objects(cleaned):
+                call = self._normalize_tool_call(obj)
+                if call:
+                    return call
+            return None
+        except Exception:
+            return None
+
+    def _parse_tool_calls(self, text: str) -> list[dict]:
+        """Extract every valid tool call from raw model text, in order."""
+        calls: list[dict] = []
+        try:
+            if not text:
+                return calls
+            cleaned = text.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned).strip()
+            seen = set()
+            for obj in self._iter_json_objects(cleaned):
+                call = self._normalize_tool_call(obj)
+                if call:
+                    key = (call["tool"], json.dumps(call["args"], sort_keys=True))
+                    if key not in seen:
+                        seen.add(key)
+                        calls.append(call)
+            return calls
+        except Exception:
+            return calls
+
+    def _looks_like_tool_json(self, text: str) -> bool:
+        return '"tool"' in text or "'tool'" in text or '"tool":' in text
+
+    def _retry_strict_tool_json(self, messages: list[dict], provider: dict) -> str | None:
+        strict = messages + [{
+            "role": "user",
+            "content": ("Output the tool call as ONLY raw JSON on a single line. "
+                        'No markdown, no prose, nothing before or after: {"tool":"tool_name","args":{...}}')
+        }]
+        return _call_llm(strict, provider, temperature=0.2, max_tokens=300)
 
     def _execute_tool_call(self, call: dict, _depth: int = 0) -> str:
         MAX_RETRIES = 2
         name = call.get("tool", "")
         args = call.get("args", {})
+        if not isinstance(name, str) or not name:
+            return "The tool call had no tool name, so I couldn't run anything."
+        if not isinstance(args, dict):
+            args = {}
         if name not in self._tools:
             return f"I tried to use {name} but it's not available. Let me just tell you about it instead."
         self._tool_was_called = True
@@ -707,6 +835,7 @@ class KaiBrain:
                 if not review["ok"]:
                     return f"I was going to use {name}, but the supervisor flagged it: {review['reason']}. {review.get('suggestion', '')}"
             result = self._tools[name](**args)
+            self._last_tool_results.append((name, str(result)[:500]))
             stream.tool_result(name, True, str(result)[:200])
             if self._episodes:
                 self._episodes.record(f"Tool: {name}", "ok", f"args={json.dumps(args)[:100]}", intent=name)
@@ -834,6 +963,29 @@ class KaiBrain:
             "knowledge_entries": self._knowledge.stats()["total_entries"] if self._knowledge else 0,
             "fts5_count": self.memory.get_search_stats().get("fts5_count", 0),
         }
+
+    def record_feedback(self, rating: str, message: str, response: str = "") -> bool:
+        """User feedback loop: thumbs up/down on a reply feeds confidence + outcome ledger."""
+        try:
+            good = rating in ("up", "good", "thumbs_up", "positive", "1")
+            bad = rating in ("down", "bad", "thumbs_down", "negative", "0")
+            if not (good or bad):
+                log.warning("record_feedback: unknown rating %r", rating)
+                return False
+            if hasattr(self, '_confidence'):
+                self._confidence.learn_from_outcome(response or "user feedback", message or "", good)
+            if hasattr(self, '_outcome_ledger'):
+                self._outcome_ledger.record_intent(
+                    "chat_reply",
+                    "success" if good else "fail",
+                    category="feedback",
+                    context=f"user={message[:60]}",
+                )
+            log.info("Feedback recorded: %s (%s)", rating, (message or "")[:60])
+            return True
+        except Exception as e:
+            log.warning("Failed to record feedback: %s", e)
+            return False
 
     # ── Default tools ──────────────────────────────────────────────────────
 

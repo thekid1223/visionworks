@@ -27,13 +27,59 @@
   const chatMessages = $('#chatMessages');
   const chatSend = $('#chatSend');
 
-  function addMessage(text, role) {
+  // Feedback history: element -> {user, response}
+  const feedbackStore = new WeakMap();
+
+  function addMessage(text, role, userText) {
     const div = document.createElement('div');
     div.className = `msg ${role}`;
     div.textContent = text;
+    if (role === 'assistant') {
+      feedbackStore.set(div, {user: userText || '', response: text});
+      const row = document.createElement('div');
+      row.className = 'feedback-row';
+      const up = document.createElement('button');
+      up.className = 'feedback-btn up';
+      up.textContent = '\uD83D\uDC4D';
+      up.title = 'Good response';
+      const down = document.createElement('button');
+      down.className = 'feedback-btn down';
+      down.textContent = '\uD83D\uDC4E';
+      down.title = 'Bad response';
+      up.addEventListener('click', () => sendFeedback(div, 'up'));
+      down.addEventListener('click', () => sendFeedback(div, 'down'));
+      row.appendChild(up);
+      row.appendChild(down);
+      div.appendChild(row);
+    }
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     return div;
+  }
+
+  async function sendFeedback(el, rating) {
+    const store = feedbackStore.get(el);
+    if (!store || el.dataset.voted) return;
+    el.dataset.voted = '1';
+    const btns = el.querySelectorAll('.feedback-btn');
+    btns.forEach(b => b.disabled = true);
+    try {
+      const resp = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({rating: rating, message: store.user, response: store.response})
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        el.classList.add('feedback-given');
+      } else {
+        btns.forEach(b => b.disabled = false);
+        delete el.dataset.voted;
+      }
+    } catch(e) {
+      btns.forEach(b => b.disabled = false);
+      delete el.dataset.voted;
+    }
   }
 
   async function sendMessage() {
@@ -65,7 +111,7 @@
       thinking.remove();
       console.log(`[Kai] fetch: ${(t1-t0).toFixed(0)}ms, json: ${(t2-t1).toFixed(0)}ms, total: ${(t2-t0).toFixed(0)}ms`);
       if (data.response) {
-        addMessage(data.response, 'assistant');
+        addMessage(data.response, 'assistant', text);
       } else if (data.error) {
         addMessage(`Error: ${data.error}`, 'system');
       }
